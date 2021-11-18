@@ -1,14 +1,11 @@
-import {
-  ExportTypes,
-  ExportAllDeclarationNode,
-  isExportAllDeclarationNode,
-  isExportDefaultDeclarationNode,
-  isExportNamedDeclarationNode
-} from '../nodes/exportNode';
+import { ExportTypes, ExportAllDeclarationNode, ExportDefaultDeclarationNode, ExportNamedDeclarationNode } from '../nodes/exportNode';
 import { throwError } from '../utils/throw';
+import { isFunctionDeclarationNode, isVariableDeclaratorNode } from '../nodes/sharedNodes';
 
+export const allKey = 'EXPORT_ALL_KEY_SANDPACK';
 export interface ExportResultObj {
-  [key: string]: ExportResult;
+  [allKey]: ExportResult[];
+  [key: string]: ExportResult | ExportResult[];
 }
 
 interface ExportResult {
@@ -17,14 +14,41 @@ interface ExportResult {
   source: string | null;
 }
 
-export const allKey = 'EXPORT_ALL_KEY_SANDPACK';
-
 export function analysisExportAllDeclarationNode(node: ExportAllDeclarationNode): ExportResultObj {
   const resultObj: ExportResultObj = Object.create(null);
-  if (node.exported?.name === allKey) {
+  resultObj[allKey] = [];
+  const keyName = node.exported?.name;
+  if (keyName === allKey) {
     throwError(`ExportAllDeclaration can't use ${allKey} `);
+  } else if (keyName == undefined) {
+    resultObj[allKey].push(createExportResult(node.type, null, node.source.value));
+  } else {
+    resultObj[keyName] = createExportResult(node.type, null, node.source.value);
   }
-  resultObj[node.exported?.name || allKey] = createExportResult(node.type, null, node.source.value);
+  return resultObj;
+}
+
+export function analysisExportDefaultDeclarationNode(node: ExportDefaultDeclarationNode): ExportResultObj {
+  const resultObj: ExportResultObj = Object.create(null);
+  const keyName = node.declaration.name;
+  resultObj[keyName] = createExportResult(node.type, keyName, null);
+  return resultObj;
+}
+
+export function analysisExportNamedDeclarationNode(node: ExportNamedDeclarationNode) {
+  const resultObj: ExportResultObj = Object.create(null);
+  if (node.declaration === null) {
+    for (const specifier of node.specifiers) {
+      resultObj[specifier.exported.name] = createExportResult(node.type, specifier.local.name, node.source?.value || null);
+    }
+  } else if (isFunctionDeclarationNode(node.declaration)) {
+    const keyName = node.declaration.id.name;
+    resultObj[keyName] = createExportResult(node.type, keyName, null);
+  } else {
+    // export const a = ... only one
+    const keyName = node.declaration.declarations[0].id.name;
+    resultObj[keyName] = createExportResult(node.type, keyName, null);
+  }
   return resultObj;
 }
 

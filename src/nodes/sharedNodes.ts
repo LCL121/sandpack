@@ -25,6 +25,10 @@ export interface VariableDeclaratorNode extends Node {
   init: ExpressionNode;
 }
 
+export function isVariableDeclaratorNode(node: Node): node is VariableDeclaratorNode {
+  return node.type === 'VariableDeclarator';
+}
+
 export interface LiteralNode extends ExpressionNode {
   type: "Literal";
   value: string | boolean | null | number | RegExp;
@@ -35,4 +39,8 @@ export interface FunctionDeclarationNode extends Node {
   id: IdentifierNode;
   params: IdentifierNode[];
   body: FunctionBodyNode;
+}
+
+export function isFunctionDeclarationNode(node: Node): node is FunctionDeclarationNode {
+  return node.type === 'FunctionDeclaration';
 }

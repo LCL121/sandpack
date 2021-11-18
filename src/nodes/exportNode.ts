@@ -1,5 +1,5 @@
 import { Node } from 'acorn';
-import { SourceNode, IdentifierNode } from './sharedNodes';
+import { SourceNode, IdentifierNode, VariableDeclarationNode, FunctionDeclarationNode } from './sharedNodes';
 
 export const exportTypes = ['ExportDefaultDeclaration', 'ExportAllDeclaration', 'ExportNamedDeclaration'] as const;
 
@@ -15,7 +15,7 @@ export function isExportAllDeclarationNode(node: Node): node is ExportAllDeclara
   return node.type === 'ExportAllDeclaration';
 }
 
-interface ExportDefaultDeclarationNode extends Node {
+export interface ExportDefaultDeclarationNode extends Node {
   type: 'ExportDefaultDeclaration';
   declaration: IdentifierNode;
 }
@@ -34,10 +34,10 @@ interface ExportSpecifierNode extends Node {
  * declaration 与specifiers 不会同时存在
  * declaration 与source 不会同时存在
  */
-interface ExportNamedDeclarationNode extends Node {
+export interface ExportNamedDeclarationNode extends Node {
   type: 'ExportNamedDeclaration';
-  declaration: null | any;
-  specifiers: ExportSpecifierNode[] | null;
+  declaration: null | VariableDeclarationNode | FunctionDeclarationNode;
+  specifiers: ExportSpecifierNode[];
   source: SourceNode | null;
 }
 

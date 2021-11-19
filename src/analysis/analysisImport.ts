@@ -1,6 +1,5 @@
 import { ImportDeclarationNode, ImportTypes, isImportSpecifierNode } from '../nodes/importNode';
 
-
 export interface ImportResultObj {
   [key: string]: ImportResult;
 }

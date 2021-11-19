@@ -29,21 +29,18 @@ interface EmptyStatementNode extends StatementNode {
 }
 
 interface WithStatementNode extends StatementNode {
-  type: "WithStatement";
+  type: 'WithStatement';
   object: ExpressionNode;
   body: StatementNode;
 }
 
-
 interface ReturnStatementNode extends StatementNode {
-  type: "ReturnStatement";
+  type: 'ReturnStatement';
   argument: ExpressionNode | null;
 }
 
 interface LabeledStatementNode extends StatementNode {
-  type: "LabeledStatement";
+  type: 'LabeledStatement';
   label: IdentifierNode;
   body: StatementNode;
 }
-
-

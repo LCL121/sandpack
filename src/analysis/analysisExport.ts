@@ -1,6 +1,12 @@
-import { ExportTypes, ExportAllDeclarationNode, ExportDefaultDeclarationNode, ExportNamedDeclarationNode } from '../nodes/exportNode';
+import {
+  ExportTypes,
+  ExportAllDeclarationNode,
+  ExportDefaultDeclarationNode,
+  ExportNamedDeclarationNode
+} from '../nodes/exportNode';
 import { throwError } from '../utils/throw';
-import { isFunctionDeclarationNode, isVariableDeclaratorNode } from '../nodes/sharedNodes';
+import { isFunctionDeclarationNode } from '../nodes/sharedNodes';
+import { analysisPattern } from './utils';
 
 export const allKey = 'EXPORT_ALL_KEY_SANDPACK';
 export interface ExportResultObj {
@@ -39,15 +45,21 @@ export function analysisExportNamedDeclarationNode(node: ExportNamedDeclarationN
   const resultObj: ExportResultObj = Object.create(null);
   if (node.declaration === null) {
     for (const specifier of node.specifiers) {
-      resultObj[specifier.exported.name] = createExportResult(node.type, specifier.local.name, node.source?.value || null);
+      resultObj[specifier.exported.name] = createExportResult(
+        node.type,
+        specifier.local.name,
+        node.source?.value || null
+      );
     }
   } else if (isFunctionDeclarationNode(node.declaration)) {
     const keyName = node.declaration.id.name;
     resultObj[keyName] = createExportResult(node.type, keyName, null);
   } else {
-    // export const a = ... only one
-    const keyName = node.declaration.declarations[0].id.name;
-    resultObj[keyName] = createExportResult(node.type, keyName, null);
+    for (const declaration of node.declaration.declarations) {
+      for (const { local, exported } of analysisPattern(declaration.id)) {
+        resultObj[exported] = createExportResult(node.type, local, null);
+      }
+    }
   }
   return resultObj;
 }

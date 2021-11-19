@@ -5,8 +5,18 @@ import { merge } from '../utils/object';
 import { throwError } from '../utils/throw';
 import { analysisImportDeclaration, ImportResultObj } from './analysisImport';
 import { Scope, ScopeStack } from './scope';
-import { ExportTypes, isExportAllDeclarationNode, isExportDefaultDeclarationNode, isExportNamedDeclarationNode } from '../nodes/exportNode';
-import { analysisExportAllDeclarationNode, analysisExportDefaultDeclarationNode, analysisExportNamedDeclarationNode, ExportResultObj } from './analysisExport';
+import {
+  isExportAllDeclarationNode,
+  isExportDefaultDeclarationNode,
+  isExportNamedDeclarationNode
+} from '../nodes/exportNode';
+import {
+  analysisExportAllDeclarationNode,
+  analysisExportDefaultDeclarationNode,
+  analysisExportNamedDeclarationNode,
+  ExportResultObj
+} from './analysisExport';
+import { analysisNode } from './analysisNode';
 
 function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   // 作用域栈
@@ -18,12 +28,14 @@ function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   for (const node of ast.body) {
     if (isImportDeclarationNode(node)) {
       result.imports = merge<ImportResultObj>(false, result.imports, analysisImportDeclaration(node));
-    } else if (isExportAllDeclarationNode(node)) {
-      result.exports = merge<ExportResultObj>(true, result.exports, analysisExportAllDeclarationNode(node));
     } else if (isExportDefaultDeclarationNode(node)) {
-      result.exports = merge<ExportResultObj>(false, result.exports, analysisExportDefaultDeclarationNode(node))
+      result.exports = merge<ExportResultObj>(false, result.exports, analysisExportDefaultDeclarationNode(node));
     } else if (isExportNamedDeclarationNode(node)) {
       result.exports = merge<ExportResultObj>(false, result.exports, analysisExportNamedDeclarationNode(node));
+    } else if (isExportAllDeclarationNode(node)) {
+      result.exports = merge<ExportResultObj>(true, result.exports, analysisExportAllDeclarationNode(node));
+    } else {
+      analysisNode(node);
     }
   }
 

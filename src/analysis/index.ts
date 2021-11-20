@@ -16,7 +16,7 @@ import {
   analysisExportNamedDeclarationNode,
   ExportResultObj
 } from './analysisExport';
-import { analysisNode } from './analysisNode';
+import { analysisNode, AnalysisIdentifierNodeObj, AnalysisStatementNodeObj } from './analysisNode';
 
 function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   // 作用域栈
@@ -45,7 +45,8 @@ function analysisTopLevel(ast: ProgramNode): AnalysisResult {
 interface AnalysisResult {
   imports: ImportResultObj;
   exports: ExportResultObj;
-  data: any;
+  identifiers: AnalysisIdentifierNodeObj;
+  statements: AnalysisStatementNodeObj;
 }
 
 export default function (ast: Node): AnalysisResult | null {

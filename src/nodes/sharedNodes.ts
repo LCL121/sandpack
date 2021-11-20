@@ -28,6 +28,10 @@ export interface LiteralNode extends Node {
   raw: string;
 }
 
+export function isLiteralNode(node: Node): node is LiteralNode {
+  return node.type === 'Literal';
+}
+
 export interface PropertyNode extends Node {
   type: 'Property';
   key: LiteralNode | IdentifierNode;

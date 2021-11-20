@@ -1,6 +1,6 @@
 import { Node } from 'acorn';
 import { ExpressionNode } from './expressionNodes';
-import { IdentifierNode, LiteralNode } from './sharedNodes';
+import { IdentifierNode, PropertyNode } from './sharedNodes';
 
 export type PatternNode =
   | ObjectPatternNode
@@ -8,13 +8,6 @@ export type PatternNode =
   | RestElementNode
   | AssignmentPatternNode
   | IdentifierNode;
-
-interface PropertyNode extends Node {
-  type: 'Property';
-  key: LiteralNode | IdentifierNode;
-  value: ExpressionNode;
-  kind: 'init' | 'get' | 'set';
-}
 
 interface AssignmentPropertyNode extends Omit<PropertyNode, 'value'> {
   value: PatternNode;
@@ -24,7 +17,7 @@ interface AssignmentPropertyNode extends Omit<PropertyNode, 'value'> {
 
 export interface ObjectPatternNode extends Node {
   type: 'ObjectPattern';
-  properties: [AssignmentPropertyNode];
+  properties: [AssignmentPropertyNode | RestElementNode];
 }
 
 export function isObjectPatternNode(node: Node): node is ObjectPatternNode {

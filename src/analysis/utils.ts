@@ -31,7 +31,11 @@ export function analysisPattern(node: PatternNode): AnalysisPatternResult[] {
   } else if (isObjectPatternNode(node)) {
     // { t1: { t2: t3 } } = {} => only need t3
     for (const property of node.properties) {
-      result.push(...analysisPattern(property.value));
+      if (isRestElementNode(property)) {
+        result.push(...analysisPattern(property.argument));
+      } else {
+        result.push(...analysisPattern(property.value));
+      }
     }
   } else if (isRestElementNode(node)) {
     result.push(...analysisPattern(node.argument));

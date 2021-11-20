@@ -1,5 +1,6 @@
 import { Node } from 'acorn';
-import { SourceNode, IdentifierNode, VariableDeclarationNode, FunctionDeclarationNode } from './sharedNodes';
+import { FunctionDeclarationNode, VariableDeclarationNode } from './declarationNode';
+import { SourceNode, IdentifierNode } from './sharedNodes';
 
 export const exportTypes = ['ExportDefaultDeclaration', 'ExportAllDeclaration', 'ExportNamedDeclaration'] as const;
 
@@ -8,7 +9,7 @@ export type ExportTypes = typeof exportTypes[number];
 export interface ExportAllDeclarationNode extends Node {
   type: 'ExportAllDeclaration';
   source: SourceNode;
-  exported?: IdentifierNode;
+  exported: IdentifierNode | null;
 }
 
 export function isExportAllDeclarationNode(node: Node): node is ExportAllDeclarationNode {

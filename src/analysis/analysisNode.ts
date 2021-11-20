@@ -1,10 +1,19 @@
 import { Node } from "acorn";
-import { isClassDeclarationNode, isVariableDeclarationNode, isFunctionDeclarationNode } from "../nodes/sharedNodes";
+import { isClassDeclarationNode, isVariableDeclarationNode, isFunctionDeclarationNode } from "../nodes/declarationNode";
+import { analysisPattern } from "./utils";
 
 export function analysisNode(node: Node) {
+  const resultObj: IdentifiersObj = {};
   if (isVariableDeclarationNode(node)) {
-    for (const declarations of node.declarations) {
-      
+    for (const declaration of node.declarations) {
+      for (const { local } of analysisPattern(declaration.id)) {
+        resultObj[local] = {
+          code: '',
+          dependencies: [],
+          id: '',
+          used: false
+        }
+      }
     }
   } else if (isFunctionDeclarationNode(node)) {
 
@@ -19,7 +28,7 @@ export interface IdentifiersObj {
 
 interface IdentifierResult {
   code: string;
-  dependencies: [string | Dependency];
+  dependencies: string[] | Dependency[];
   id: string;
   used: boolean;
 }

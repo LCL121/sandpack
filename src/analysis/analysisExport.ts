@@ -5,7 +5,7 @@ import {
   ExportNamedDeclarationNode
 } from '../nodes/exportNode';
 import { throwError } from '../utils/throw';
-import { isFunctionDeclarationNode } from '../nodes/sharedNodes';
+import { isFunctionDeclarationNode } from '../nodes/declarationNode';
 import { analysisPattern } from './utils';
 
 export const allKey = 'EXPORT_ALL_KEY_SANDPACK';

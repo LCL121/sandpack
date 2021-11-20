@@ -1,27 +1,29 @@
 import { Node } from 'acorn';
 import { IdentifierNode, SourceNode } from './sharedNodes';
 
-export const importTypes = ['ImportDefaultSpecifier', 'ImportSpecifier', 'ImportNamespaceSpecifier'] as const;
-
-export type ImportTypes = typeof importTypes[number];
+export enum ImportTypes {
+  ImportDefaultSpecifierType = 'ImportDefaultSpecifier',
+  ImportSpecifierType = 'ImportSpecifier',
+  ImportNamespaceSpecifierType = 'ImportNamespaceSpecifier'
+}
 
 export interface ImportDefaultSpecifierNode extends Node {
-  type: 'ImportDefaultSpecifier';
+  type: ImportTypes.ImportDefaultSpecifierType;
   local: IdentifierNode;
 }
 
 export interface ImportSpecifierNode extends Node {
-  type: 'ImportSpecifier';
+  type: ImportTypes.ImportSpecifierType;
   local: IdentifierNode;
   imported: IdentifierNode;
 }
 
 export function isImportSpecifierNode(node: Node): node is ImportSpecifierNode {
-  return node.type === 'ImportSpecifier';
+  return node.type === ImportTypes.ImportSpecifierType;
 }
 
 export interface ImportNamespaceSpecifierNode extends Node {
-  type: 'ImportNamespaceSpecifier';
+  type: ImportTypes.ImportNamespaceSpecifierType;
   local: IdentifierNode;
 }
 

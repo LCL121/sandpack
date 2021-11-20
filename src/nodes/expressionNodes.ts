@@ -27,40 +27,62 @@ export type ExpressionNode =
   | LiteralNode
   | PrivateIdentifierNode;
 
+enum ExpressionTypes {
+  ThisExpressionType = 'ThisExpression',
+  ArrayExpressionType = 'ArrayExpression',
+  ObjectExpressionType = 'ObjectExpression',
+  FunctionExpressionType = 'FunctionExpression',
+  UnaryExpressionType = 'UnaryExpression',
+  UpdateExpressionType = 'UpdateExpression',
+  BinaryExpressionType = 'BinaryExpression',
+  AssignmentExpressionType = 'AssignmentExpression',
+  LogicalExpressionType = 'LogicalExpression',
+  MemberExpressionType = 'MemberExpression',
+  ConditionalExpressionType = 'ConditionalExpression',
+  CallExpressionType = 'CallExpression',
+  NewExpressionType = 'NewExpression',
+  SequenceExpressionType = 'SequenceExpression',
+  ArrowFunctionExpressionType = 'ArrowFunctionExpression',
+  YieldExpressionType = 'YieldExpression',
+  AwaitExpressionType = 'AwaitExpression',
+  ChainExpressionType = 'ChainExpression',
+  ImportExpressionType = 'ImportExpression'
+}
+
 /** this.property this[property] 目前可以不理 */
 interface ThisExpressionNode extends Node {
-  type: 'ThisExpression';
+  type: ExpressionTypes.ThisExpressionType;
 }
 
 /** const arr = [elements] */
 interface ArrayExpressionNode extends Node {
-  type: 'ArrayExpression';
+  type: ExpressionTypes.ArrayExpressionType;
   elements: ExpressionNode[] | null;
 }
 
 export function isArrayExpressionNode(node: Node): node is ArrayExpressionNode {
-  return node.type === 'ArrayExpression';
+  return node.type === ExpressionTypes.ArrayExpressionType;
 }
 
 interface ObjectExpressionNode extends Node {
-  type: 'ObjectExpression';
+  type: ExpressionTypes.ObjectExpressionType;
   properties: PropertyNode[];
 }
 
 export function isObjectExpressionNode(node: Node): node is ObjectExpressionNode {
-  return node.type === 'ObjectExpression';
+  return node.type === ExpressionTypes.ObjectExpressionType;
 }
 
 interface FunctionExpressionNode extends FunctionNode {
-  type: 'FunctionExpression';
+  type: ExpressionTypes.FunctionExpressionType;
 }
 
 export function isFunctionExpressionNode(node: Node): node is FunctionExpressionNode {
-  return node.type === 'FunctionExpression';
+  return node.type === ExpressionTypes.FunctionExpressionType;
 }
 
 interface UnaryExpressionNode extends Node {
-  type: 'UnaryExpression';
+  type: ExpressionTypes.UnaryExpressionType;
   operator: UnaryOperator;
   prefix: boolean;
   argument: ExpressionNode;
@@ -71,11 +93,11 @@ const unaryOperator = ['-', '+', '!', '~', 'typeof', 'void', 'delete'] as const;
 type UnaryOperator = typeof unaryOperator[number];
 
 export function isUnaryExpressionNode(node: Node): node is UnaryExpressionNode {
-  return node.type === 'UnaryExpression';
+  return node.type === ExpressionTypes.UnaryExpressionType;
 }
 
 interface UpdateExpressionNode extends Node {
-  type: 'UpdateExpression';
+  type: ExpressionTypes.UpdateExpressionType;
   operator: UpdateOperator;
   argument: ExpressionNode;
   prefix: boolean;
@@ -86,11 +108,11 @@ const updateOperator = ['++', '--'] as const;
 type UpdateOperator = typeof updateOperator[number];
 
 export function isUpdateExpressionNode(node: Node): node is UpdateExpressionNode {
-  return node.type === 'UpdateExpression';
+  return node.type === ExpressionTypes.UpdateExpressionType;
 }
 
 interface BinaryExpressionNode extends Node {
-  type: 'BinaryExpression';
+  type: ExpressionTypes.BinaryExpressionType;
   operator: BinaryOperator;
   left: ExpressionNode | PrivateIdentifierNode;
   right: ExpressionNode;
@@ -124,11 +146,11 @@ const binaryOperator = [
 type BinaryOperator = typeof binaryOperator[number];
 
 export function isBinaryExpressionNode(node: Node): node is BinaryExpressionNode {
-  return node.type === 'BinaryExpression';
+  return node.type === ExpressionTypes.BinaryExpressionType;
 }
 
 interface AssignmentExpressionNode extends Node {
-  type: 'AssignmentExpression';
+  type: ExpressionTypes.AssignmentExpressionType;
   operator: AssignmentOperator;
   // left: PatternNode | ExpressionNode; left 为PatternNode 目前没找到例子
   left: ExpressionNode;
@@ -155,11 +177,11 @@ const assignmentOperator = [
 type AssignmentOperator = typeof assignmentOperator[number];
 
 export function isAssignmentExpressionNode(node: Node): node is AssignmentExpressionNode {
-  return node.type === 'AssignmentExpression';
+  return node.type === ExpressionTypes.AssignmentExpressionType;
 }
 
 interface LogicalExpressionNode extends Node {
-  type: 'LogicalExpression';
+  type: ExpressionTypes.LogicalExpressionType;
   operator: LogicalOperator;
   left: ExpressionNode;
   right: ExpressionNode;
@@ -170,97 +192,97 @@ const logicalOperator = ['||', '&&', '??'] as const;
 type LogicalOperator = typeof logicalOperator[number];
 
 export function isLogicalExpressionNode(node: Node): node is LogicalExpressionNode {
-  return node.type === 'LogicalExpression';
+  return node.type === ExpressionTypes.LogicalExpressionType;
 }
 
 /** object[property] object.property */
 interface MemberExpressionNode extends Node {
-  type: 'MemberExpression';
+  type: ExpressionTypes.MemberExpressionType;
   object: ExpressionNode;
   property: ExpressionNode;
   computed: boolean;
 }
 
 export function isMemberExpressionNode(node: Node): node is MemberExpressionNode {
-  return node.type === 'MemberExpression';
+  return node.type === ExpressionTypes.MemberExpressionType;
 }
 
 interface ConditionalExpressionNode extends Node {
-  type: 'ConditionalExpression';
+  type: ExpressionTypes.ConditionalExpressionType;
   test: ExpressionNode;
   alternate: ExpressionNode;
   consequent: ExpressionNode;
 }
 
 export function isConditionalExpressionNode(node: Node): node is ConditionalExpressionNode {
-  return node.type === 'ConditionalExpression';
+  return node.type === ExpressionTypes.ConditionalExpressionType;
 }
 
 interface CallExpressionNode extends Node {
-  type: 'CallExpression';
+  type: ExpressionTypes.CallExpressionType;
   callee: ExpressionNode;
   arguments: ExpressionNode[];
 }
 
 export function isCallExpressionNode(node: Node): node is CallExpressionNode {
-  return node.type === 'CallExpression';
+  return node.type === ExpressionTypes.CallExpressionType;
 }
 
 interface NewExpressionNode extends Node {
-  type: 'NewExpression';
+  type: ExpressionTypes.NewExpressionType;
   callee: ExpressionNode;
   arguments: ExpressionNode[];
 }
 
 export function isNewExpressionNode(node: Node): node is NewExpressionNode {
-  return node.type === 'NewExpression';
+  return node.type === ExpressionTypes.NewExpressionType;
 }
 
 interface SequenceExpressionNode extends Node {
-  type: 'SequenceExpression';
+  type: ExpressionTypes.SequenceExpressionType;
   expressions: ExpressionNode[];
 }
 
 export function isSequenceExpressionNode(node: Node): node is SequenceExpressionNode {
-  return node.type === 'SequenceExpression';
+  return node.type === ExpressionTypes.SequenceExpressionType;
 }
 
 interface ArrowFunctionExpressionNode extends Omit<FunctionNode, 'body'> {
-  type: 'ArrowFunctionExpression';
+  type: ExpressionTypes.ArrowFunctionExpressionType;
   body: FunctionBodyNode | ExpressionNode;
   expression: boolean;
 }
 
 export function isArrowFunctionExpressionNode(node: Node): node is ArrowFunctionExpressionNode {
-  return node.type === 'ArrowFunctionExpression';
+  return node.type === ExpressionTypes.ArrowFunctionExpressionType;
 }
 
 interface YieldExpressionNode extends Node {
-  type: 'YieldExpression';
+  type: ExpressionTypes.YieldExpressionType;
   argument: ExpressionNode | null;
   delegate: boolean;
 }
 
 export function isYieldExpressionNode(node: Node): node is YieldExpressionNode {
-  return node.type === 'YieldExpression';
+  return node.type === ExpressionTypes.YieldExpressionType;
 }
 
 interface AwaitExpressionNode extends Node {
-  type: 'AwaitExpression';
+  type: ExpressionTypes.AwaitExpressionType;
   argument: ExpressionNode;
 }
 
 export function isAwaitExpressionNode(node: Node): node is AwaitExpressionNode {
-  return node.type === 'AwaitExpression';
+  return node.type === ExpressionTypes.AwaitExpressionType;
 }
 
 interface ChainExpressionNode extends Node {
-  type: 'ChainExpression';
+  type: ExpressionTypes.ChainExpressionType;
   expression: ChainElementNode | MemberExpressionNode;
 }
 
 export function isChainExpressionNode(node: Node): node is ChainExpressionNode {
-  return node.type === 'ChainExpression';
+  return node.type === ExpressionTypes.ChainExpressionType;
 }
 
 interface ChainElementNode extends MemberExpressionNode {
@@ -268,10 +290,10 @@ interface ChainElementNode extends MemberExpressionNode {
 }
 
 interface ImportExpressionNode extends Node {
-  type: 'ImportExpression';
+  type: ExpressionTypes.ImportExpressionType;
   source: ExpressionNode;
 }
 
 export function isImportExpressionNode(node: Node): node is ImportExpressionNode {
-  return node.type === 'ImportExpression';
+  return node.type === ExpressionTypes.ImportExpressionType;
 }

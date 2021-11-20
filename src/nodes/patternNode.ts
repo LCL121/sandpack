@@ -9,6 +9,13 @@ export type PatternNode =
   | AssignmentPatternNode
   | IdentifierNode;
 
+enum PatternTypes {
+  ObjectPatternType = 'ObjectPattern',
+  ArrayPatternType = 'ArrayPattern',
+  RestElementType = 'RestElement',
+  AssignmentPatternType = 'AssignmentPattern'
+}
+
 interface AssignmentPropertyNode extends Omit<PropertyNode, 'value'> {
   value: PatternNode;
   kind: 'init';
@@ -16,38 +23,38 @@ interface AssignmentPropertyNode extends Omit<PropertyNode, 'value'> {
 }
 
 export interface ObjectPatternNode extends Node {
-  type: 'ObjectPattern';
+  type: PatternTypes.ObjectPatternType;
   properties: [AssignmentPropertyNode | RestElementNode];
 }
 
 export function isObjectPatternNode(node: Node): node is ObjectPatternNode {
-  return node.type === 'ObjectPattern';
+  return node.type === PatternTypes.ObjectPatternType;
 }
 
 export interface ArrayPatternNode extends Node {
-  type: 'ArrayPattern';
+  type: PatternTypes.ArrayPatternType;
   elements: PatternNode[] | null;
 }
 
 export function isArrayPatternNode(node: Node): node is ArrayPatternNode {
-  return node.type === 'ArrayPattern';
+  return node.type === PatternTypes.ArrayPatternType;
 }
 
 export interface RestElementNode extends Node {
-  type: 'RestElement';
+  type: PatternTypes.RestElementType;
   argument: PatternNode;
 }
 
 export function isRestElementNode(node: Node): node is RestElementNode {
-  return node.type === 'RestElement';
+  return node.type === PatternTypes.RestElementType;
 }
 
 export interface AssignmentPatternNode extends Node {
-  type: 'AssignmentPattern';
+  type: PatternTypes.AssignmentPatternType;
   left: PatternNode;
   right: ExpressionNode;
 }
 
 export function isAssignmentPatternNode(node: Node): node is AssignmentPatternNode {
-  return node.type === 'AssignmentPattern';
+  return node.type === PatternTypes.AssignmentPatternType;
 }

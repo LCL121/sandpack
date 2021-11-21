@@ -3,7 +3,6 @@ import { isProgramNode, ProgramNode } from '../nodes/programNode';
 import { isImportDeclarationNode } from '../nodes/importNode';
 import { throwError } from '../utils/throw';
 import { analysisImportDeclaration } from './analysisImport';
-import { Scope, ScopeStack } from './scope';
 import {
   isExportAllDeclarationNode,
   isExportDefaultDeclarationNode,
@@ -12,31 +11,41 @@ import {
 import {
   analysisExportAllDeclarationNode,
   analysisExportDefaultDeclarationNode,
-  analysisExportNamedDeclarationNode,
+  analysisExportNamedDeclarationNode
 } from './analysisExport';
 import { analysisNode } from './analysisNode';
 import { AnalysisResult } from './analysisResult';
+import { ScopedId } from './constant';
+import { AnalysisState } from './analysisState';
 
 function analysisTopLevel(ast: ProgramNode): AnalysisResult {
-  // 作用域栈
-  const scopes = new ScopeStack();
-  const globalScope = new Scope();
-  scopes.push(globalScope);
+  const globalState = new AnalysisState();
+  globalState.pushScope(ScopedId.topScopeId);
 
   const result = new AnalysisResult();
   for (const node of ast.body) {
     if (isImportDeclarationNode(node)) {
-      result.addImports(false, analysisImportDeclaration(node));
+      const obj = analysisImportDeclaration(node);
+      result.addImports(false, obj);
+      globalState.topScope().pushByImportResultObj(obj);
     } else if (isExportDefaultDeclarationNode(node)) {
-      result.addExports(false, analysisExportDefaultDeclarationNode(node));
+      const obj = analysisExportDefaultDeclarationNode(node);
+      result.addExports(false);
+      globalState.topScope().pushByExportResultObj(obj);
     } else if (isExportNamedDeclarationNode(node)) {
-      result.addExports(false, analysisExportNamedDeclarationNode(node));
+      const obj = analysisExportNamedDeclarationNode(node);
+      result.addExports(false, obj);
+      globalState.topScope().pushByExportResultObj(obj);
     } else if (isExportAllDeclarationNode(node)) {
-      result.addExports(true, analysisExportAllDeclarationNode(node));
+      const obj = analysisExportAllDeclarationNode(node);
+      result.addExports(true, obj);
+      globalState.topScope().pushByExportResultObj(obj);
     } else {
-      analysisNode(node, result);
+      analysisNode(node, result, globalState);
     }
   }
+
+  console.log(globalState.allScopes());
 
   return result;
 }

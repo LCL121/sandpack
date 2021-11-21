@@ -24,9 +24,10 @@ import {
 import { isIdentifierNode, isLiteralNode } from '../nodes/sharedNodes';
 import { ExpressionStatementNode, isExpressionStatementNode } from '../nodes/statementNodes';
 import { AnalysisResult } from './analysisResult';
-import { analysisPattern, uniqueIdGenerator } from './utils';
+import { AnalysisState } from './analysisState';
+import { analysisPattern } from './utils';
 
-export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdentifierNodeObj {
+export function analysisNode(node: Node, result: AnalysisResult, state: AnalysisState): AnalysisIdentifierNodeObj {
   const resultDeclarationObj: AnalysisIdentifierNodeObj = {};
 
   // declaration analysis
@@ -37,12 +38,13 @@ export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdenti
         resultDeclarationObj[local] = {
           code: '',
           dependencies,
-          id: uniqueIdGenerator(),
+          id: state.uniqueIdGenerator(),
           used: false
         };
       }
     }
   } else if (isFunctionDeclarationNode(node)) {
+    const local = node.id.name;
     // TODO
   } else if (isClassDeclarationNode(node)) {
     // TODO
@@ -50,17 +52,17 @@ export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdenti
 
   // statement analysis
   if (isExpressionStatementNode(node)) {
-    result.addStatements(analysisExpressionStatementNode(node))
+    result.addStatements(analysisExpressionStatementNode(node, state))
   }
 
   return resultDeclarationObj;
 }
 
-function analysisExpressionStatementNode(node: ExpressionStatementNode): AnalysisNodeResult {
+function analysisExpressionStatementNode(node: ExpressionStatementNode, state: AnalysisState): AnalysisNodeResult {
   const result: AnalysisNodeResult = Object.create(null);
   result.code = '';
   result.dependencies = analysisExpressionNode(node.expression);
-  result.id = uniqueIdGenerator();
+  result.id = state.uniqueIdGenerator();
   result.used = false;
   return result;
 }

@@ -10,6 +10,8 @@ enum DeclarationTypes {
   ClassDeclarationType = 'ClassDeclaration'
 }
 
+export type DeclarationNode = VariableDeclarationNode | FunctionDeclarationNode | ClassDeclarationNode;
+
 export interface VariableDeclaratorNode extends Node {
   type: 'VariableDeclarator';
   id: PatternNode;

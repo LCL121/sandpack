@@ -23,6 +23,7 @@ function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   globalState.pushScope(ScopedId.topScopeId);
 
   const result = new AnalysisResult();
+
   for (const node of ast.body) {
     if (isImportDeclarationNode(node)) {
       const obj = analysisImportDeclaration(node);
@@ -45,7 +46,7 @@ function analysisTopLevel(ast: ProgramNode): AnalysisResult {
     }
   }
 
-  console.log(globalState.allScopes());
+  globalState.popScope();
 
   return result;
 }

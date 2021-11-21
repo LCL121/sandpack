@@ -2,7 +2,7 @@ import { Node } from 'acorn';
 import { LiteralNode, IdentifierNode } from './sharedNodes';
 import { ExpressionNode } from './expressionNodes';
 import { PatternNode } from './patternNode';
-import { VariableDeclarationNode } from './declarationNode';
+import { DeclarationNode, VariableDeclarationNode } from './declarationNode';
 
 export type StatementNode =
   | ExpressionStatementNode
@@ -66,7 +66,11 @@ interface DirectiveNode extends Node {
 
 export interface BlockStatementNode extends Node {
   type: StatementTypes.BlockStatementType;
-  body: StatementNode[];
+  body: [StatementNode | DeclarationNode];
+}
+
+export function isBlockStatementNode(node: Node): node is BlockStatementNode {
+  return node.type == StatementTypes.BlockStatementType;
 }
 
 /** static { } */

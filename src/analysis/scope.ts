@@ -12,11 +12,19 @@ export class Scope {
     this.id = id;
   }
 
+  private _push(name: string) {
+    if (this._var.indexOf(name) === -1) {
+      this._var.push(name);
+    }
+  }
+
+  push(name: string) {
+    this._push(name);
+  }
+
   pushByImportResultObj(obj: ImportResultObj) {
     for (const key in obj) {
-      if (this._var.indexOf(key) === -1) {
-        this._var.push(key);
-      }
+      this._push(key);
     }
   }
 
@@ -25,9 +33,7 @@ export class Scope {
       if (key === allKey) {
         continue;
       }
-      if (this._var.indexOf(key) === -1) {
-        this._var.push(key);
-      }
+      this._push(key);
     }
   }
 }
@@ -52,7 +58,5 @@ export class ScopeStack {
     return this._scopes[index];
   }
 
-  findVar() {
-
-  }
+  findVar() {}
 }

@@ -17,3 +17,10 @@ export function merge<T extends { [key: string]: any }>(isMergeObj: boolean, ...
   }
   return result;
 }
+
+export function isEmptyObject(obj: Object): boolean {
+  if (Object.keys(obj).length === 0) {
+    return true;
+  }
+  return false;
+}

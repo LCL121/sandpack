@@ -1,5 +1,7 @@
 /node_modules
 
+/test/result.json
+
 yarn-error.log
 
 yarn.lock

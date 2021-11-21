@@ -22,19 +22,32 @@ import {
   isYieldExpressionNode
 } from '../nodes/expressionNodes';
 import { isIdentifierNode, isLiteralNode } from '../nodes/sharedNodes';
-import { ExpressionStatementNode, isExpressionStatementNode } from '../nodes/statementNodes';
+import { ExpressionStatementNode, isBlockStatementNode, isExpressionStatementNode } from '../nodes/statementNodes';
+import { isEmptyObject } from '../utils/object';
 import { AnalysisResult } from './analysisResult';
 import { AnalysisState } from './analysisState';
+import { ScopedId } from './constant';
 import { analysisPattern } from './utils';
 
-export function analysisNode(node: Node, result: AnalysisResult, state: AnalysisState): AnalysisIdentifierNodeObj {
-  const resultDeclarationObj: AnalysisIdentifierNodeObj = {};
+interface IAnalysisNodeResult {
+  locals: string[];
+  dependencies: string[];
+}
+
+export function analysisNode(node: Node, result: AnalysisResult, state: AnalysisState): IAnalysisNodeResult {
+  const resultObj: IAnalysisNodeResult = {
+    locals: [],
+    dependencies: []
+  }
+  const resultDeclarationObj: AnalysisIdentifierNodeObj = Object.create(null);
 
   // declaration analysis
   if (isVariableDeclarationNode(node)) {
     for (const declaration of node.declarations) {
       const dependencies = analysisExpressionNode(declaration.init);
       for (const { local } of analysisPattern(declaration.id)) {
+        resultObj.locals.push(local);
+        state.topScope().push(local);
         resultDeclarationObj[local] = {
           code: '',
           dependencies,
@@ -50,12 +63,22 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     // TODO
   }
 
-  // statement analysis
-  if (isExpressionStatementNode(node)) {
-    result.addStatements(analysisExpressionStatementNode(node, state))
+  if (!isEmptyObject(resultDeclarationObj) && state.topScope().id === ScopedId.topScopeId) {
+    result.addIdentifiers(false, resultDeclarationObj);
   }
 
-  return resultDeclarationObj;
+  // statement analysis
+  if (isExpressionStatementNode(node)) {
+    result.addStatements(analysisExpressionStatementNode(node, state));
+  } else if (isBlockStatementNode(node)) {
+    state.pushScope(ScopedId.blockScoped);
+    for (const statement of node.body) {
+      analysisNode(statement, result, state);
+    }
+    state.popScope();
+  }
+
+  return resultObj;
 }
 
 function analysisExpressionStatementNode(node: ExpressionStatementNode, state: AnalysisState): AnalysisNodeResult {

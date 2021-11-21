@@ -13,6 +13,10 @@ export class AnalysisState {
     this._scopeStack.push(new Scope(scopeId));
   }
 
+  popScope() {
+    return this._scopeStack.pop();
+  }
+
   topScope() {
     return this._scopeStack.findScope(this._scopeStack.length - 1);
   }

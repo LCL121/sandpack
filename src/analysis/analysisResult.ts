@@ -7,21 +7,25 @@ import { AnalysisIdentifierNodeObj, AnalysisNodeResult, AnalysisStatementNodeObj
 import { allKey } from './constant';
 
 export class AnalysisResult {
-  private imports: ImportResultObj = {};
-  private exports: ExportResultObj = {
+  private _imports: ImportResultObj = {};
+  private _exports: ExportResultObj = {
     [allKey]: []
   };
-  private identifiers: AnalysisIdentifierNodeObj = {};
-  private statements: AnalysisStatementNodeObj = {
+  private _identifiers: AnalysisIdentifierNodeObj = {};
+  private _statements: AnalysisStatementNodeObj = {
     statements: []
   };
 
   addImports(isMergeObj: boolean, ...imports: ImportResultObj[]) {
-    this.imports = merge<ImportResultObj>(isMergeObj, this.imports, ...imports);
+    this._imports = merge<ImportResultObj>(isMergeObj, this._imports, ...imports);
   }
 
   addExports(isMergeObj: boolean, ...exports: ExportResultObj[]) {
-    this.exports = merge<ExportResultObj>(isMergeObj, this.exports, ...exports);
+    this._exports = merge<ExportResultObj>(isMergeObj, this._exports, ...exports);
+  }
+
+  addIdentifiers(isMergeObj: boolean, ...exports: AnalysisIdentifierNodeObj[]) {
+    this._identifiers = merge<AnalysisIdentifierNodeObj>(isMergeObj, this._identifiers, ...exports);
   }
 
   addStatements(...statements: AnalysisNodeResult[]) {
@@ -29,17 +33,17 @@ export class AnalysisResult {
       if (isEmptyArray(statement.dependencies)) {
         continue;
       }
-      this.statements.statements.push(statement);
+      this._statements.statements.push(statement);
       for (const dependency of statement.dependencies) {
         if (isString(dependency)) {
-          this.statements[dependency] = arrayPush<number>(
-            this.statements.statements.length - 1,
-            this.statements[dependency] as number[]
+          this._statements[dependency] = arrayPush<number>(
+            this._statements.statements.length - 1,
+            this._statements[dependency] as number[]
           );
         } else {
-          this.statements[dependency.value] = arrayPush<number>(
-            this.statements.statements.length - 1,
-            this.statements[dependency.value] as number[]
+          this._statements[dependency.value] = arrayPush<number>(
+            this._statements.statements.length - 1,
+            this._statements[dependency.value] as number[]
           );
         }
       }

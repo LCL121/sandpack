@@ -11,12 +11,15 @@ import {
   isExportNamedDeclarationNode
 } from '../nodes/exportNode';
 import {
+  allKey,
   analysisExportAllDeclarationNode,
   analysisExportDefaultDeclarationNode,
   analysisExportNamedDeclarationNode,
   ExportResultObj
 } from './analysisExport';
-import { analysisNode, AnalysisIdentifierNodeObj, AnalysisStatementNodeObj } from './analysisNode';
+import { analysisNode, AnalysisIdentifierNodeObj, AnalysisStatementNodeObj, AnalysisNodeResult } from './analysisNode';
+import { isString } from '../utils/type';
+import { arrayPush, isEmptyArray } from '../utils/array';
 
 function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   // 作用域栈
@@ -24,29 +27,63 @@ function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   const globalScope = new Scope();
   scopes.push(globalScope);
 
-  const result: AnalysisResult = Object.create(null);
+  const result = new AnalysisResult();
   for (const node of ast.body) {
     if (isImportDeclarationNode(node)) {
-      result.imports = merge<ImportResultObj>(false, result.imports, analysisImportDeclaration(node));
+      result.addImports(false, analysisImportDeclaration(node));
     } else if (isExportDefaultDeclarationNode(node)) {
-      result.exports = merge<ExportResultObj>(false, result.exports, analysisExportDefaultDeclarationNode(node));
+      result.addExports(false, analysisExportDefaultDeclarationNode(node));
     } else if (isExportNamedDeclarationNode(node)) {
-      result.exports = merge<ExportResultObj>(false, result.exports, analysisExportNamedDeclarationNode(node));
+      result.addExports(false, analysisExportNamedDeclarationNode(node));
     } else if (isExportAllDeclarationNode(node)) {
-      result.exports = merge<ExportResultObj>(true, result.exports, analysisExportAllDeclarationNode(node));
+      result.addExports(true, analysisExportAllDeclarationNode(node));
     } else {
-      analysisNode(node);
+      analysisNode(node, result);
     }
   }
 
   return result;
 }
 
-interface AnalysisResult {
-  imports: ImportResultObj;
-  exports: ExportResultObj;
-  identifiers: AnalysisIdentifierNodeObj;
-  statements: AnalysisStatementNodeObj;
+export class AnalysisResult {
+  private imports: ImportResultObj = {};
+  private exports: ExportResultObj = {
+    [allKey]: []
+  };
+  private identifiers: AnalysisIdentifierNodeObj = {};
+  private statements: AnalysisStatementNodeObj = {
+    statements: []
+  };
+
+  addImports(isMergeObj: boolean, ...imports: ImportResultObj[]) {
+    this.imports = merge<ImportResultObj>(isMergeObj, this.imports, ...imports);
+  }
+
+  addExports(isMergeObj: boolean, ...exports: ExportResultObj[]) {
+    this.exports = merge<ExportResultObj>(isMergeObj, this.exports, ...exports);
+  }
+
+  addStatements(...statements: AnalysisNodeResult[]) {
+    for (const statement of statements) {
+      if (isEmptyArray(statement.dependencies)) {
+        continue;
+      }
+      this.statements.statements.push(statement);
+      for (const dependency of statement.dependencies) {
+        if (isString(dependency)) {
+          this.statements[dependency] = arrayPush<number>(
+            this.statements.statements.length - 1,
+            this.statements[dependency] as number[]
+          );
+        } else {
+          this.statements[dependency.value] = arrayPush<number>(
+            this.statements.statements.length - 1,
+            this.statements[dependency.value] as number[]
+          );
+        }
+      }
+    }
+  }
 }
 
 export default function (ast: Node): AnalysisResult | null {

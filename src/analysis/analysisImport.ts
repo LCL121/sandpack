@@ -4,7 +4,7 @@ export interface ImportResultObj {
   [key: string]: ImportResult;
 }
 
-interface ImportResult {
+export interface ImportResult {
   type: ImportTypes;
   source: string;
   imported: string | null;

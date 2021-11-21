@@ -14,7 +14,7 @@ export interface ExportResultObj {
   [key: string]: ExportResult | ExportResult[];
 }
 
-interface ExportResult {
+export interface ExportResult {
   type: ExportTypes;
   local: string | null;
   source: string | null;

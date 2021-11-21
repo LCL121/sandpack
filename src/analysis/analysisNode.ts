@@ -1,19 +1,44 @@
 import { Node } from 'acorn';
+import { AnalysisResult } from '.';
 import { isClassDeclarationNode, isVariableDeclarationNode, isFunctionDeclarationNode } from '../nodes/declarationNode';
-import { ExpressionNode, isArrayExpressionNode, isArrowFunctionExpressionNode, isAssignmentExpressionNode, isAwaitExpressionNode, isBinaryExpressionNode, isCallExpressionNode, isChainExpressionNode, isConditionalExpressionNode, isFunctionExpressionNode, isImportExpressionNode, isLogicalExpressionNode, isMemberExpressionNode, isNewExpressionNode, isObjectExpressionNode, isSequenceExpressionNode, isUnaryExpressionNode, isUpdateExpressionNode, isYieldExpressionNode } from '../nodes/expressionNodes';
+import {
+  ExpressionNode,
+  isArrayExpressionNode,
+  isArrowFunctionExpressionNode,
+  isAssignmentExpressionNode,
+  isAwaitExpressionNode,
+  isBinaryExpressionNode,
+  isCallExpressionNode,
+  isChainExpressionNode,
+  isConditionalExpressionNode,
+  isFunctionExpressionNode,
+  isImportExpressionNode,
+  isLogicalExpressionNode,
+  isMemberExpressionNode,
+  isNewExpressionNode,
+  isObjectExpressionNode,
+  isSequenceExpressionNode,
+  isUnaryExpressionNode,
+  isUpdateExpressionNode,
+  isYieldExpressionNode
+} from '../nodes/expressionNodes';
 import { isIdentifierNode, isLiteralNode } from '../nodes/sharedNodes';
 import { ExpressionStatementNode, isExpressionStatementNode } from '../nodes/statementNodes';
+import { arrayPush } from '../utils/array';
 import { analysisPattern } from './utils';
 
-export function analysisNode(node: Node): AnalysisIdentifierNodeObj | AnalysisStatementNodeObj {
-  const resultObj: AnalysisIdentifierNodeObj | AnalysisStatementNodeObj = {};
-  
+export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdentifierNodeObj | AnalysisStatementNodeObj {
+  const resultDeclarationObj: AnalysisIdentifierNodeObj = {};
+  const resultStatementObj: AnalysisStatementNodeObj = {
+    statements: []
+  };
+
   // declaration analysis
   if (isVariableDeclarationNode(node)) {
     for (const declaration of node.declarations) {
       const dependencies = analysisExpressionNode(declaration.init);
       for (const { local } of analysisPattern(declaration.id)) {
-        resultObj[local] = {
+        resultDeclarationObj[local] = {
           code: '',
           dependencies,
           id: '',
@@ -26,20 +51,23 @@ export function analysisNode(node: Node): AnalysisIdentifierNodeObj | AnalysisSt
   } else if (isClassDeclarationNode(node)) {
     // TODO
   }
-  
-  // statement ananlysis
+
+  // statement analysis
   if (isExpressionStatementNode(node)) {
-    analysisExpressionStatementNode(node);
+    result.addStatements(analysisExpressionStatementNode(node))
   } else {
     return {};
   }
 
-  return resultObj;
+  return resultDeclarationObj;
 }
 
 function analysisExpressionStatementNode(node: ExpressionStatementNode): AnalysisNodeResult {
   const result: AnalysisNodeResult = Object.create(null);
-  console.log(analysisExpressionNode(node.expression));
+  result.code = '';
+  result.dependencies = analysisExpressionNode(node.expression);
+  result.id = '';
+  result.used = false;
   return result;
 }
 
@@ -104,20 +132,28 @@ export interface AnalysisIdentifierNodeObj {
   [key: string]: AnalysisNodeResult;
 }
 
-/** 以dependency 为key */
+/**
+ * 结构设计思路
+ * statements 保存statement 对应的数据
+ * 以dependency 为key：
+ *    1：dependency: string
+ *    2：dependency: Dependency
+ *        => 当某个statement、declaration 有该object 的属性，需要将其完整导出去
+ *        => 以Dependency.value 为key
+ */
 export interface AnalysisStatementNodeObj {
   statements: AnalysisNodeResult[];
-  [key: string]: AnalysisNodeResult | AnalysisNodeResult[];
+  [key: string]: number[] | AnalysisNodeResult[];
 }
 
-interface AnalysisNodeResult {
+export interface AnalysisNodeResult {
   code: string;
   dependencies: string[] | Dependency[];
   id: string;
   used: boolean;
 }
 
-interface Dependency {
+export interface Dependency {
   value: string;
   attributes: string[];
 }

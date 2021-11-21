@@ -7,8 +7,8 @@ import {
 import { throwError } from '../utils/throw';
 import { isFunctionDeclarationNode } from '../nodes/declarationNode';
 import { analysisPattern } from './utils';
+import { allKey } from './constant';
 
-export const allKey = 'EXPORT_ALL_KEY_SANDPACK';
 export interface ExportResultObj {
   [allKey]: ExportResult[];
   [key: string]: ExportResult | ExportResult[];

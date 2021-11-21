@@ -42,3 +42,8 @@ export function analysisPattern(node: PatternNode): AnalysisPatternResult[] {
   }
   return result;
 }
+
+let idCount = 0;
+export function uniqueIdGenerator() {
+  return `sand$$${idCount++}`;
+}

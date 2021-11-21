@@ -1,5 +1,4 @@
 import { Node } from 'acorn';
-import { AnalysisResult } from '.';
 import { isClassDeclarationNode, isVariableDeclarationNode, isFunctionDeclarationNode } from '../nodes/declarationNode';
 import {
   ExpressionNode,
@@ -24,14 +23,11 @@ import {
 } from '../nodes/expressionNodes';
 import { isIdentifierNode, isLiteralNode } from '../nodes/sharedNodes';
 import { ExpressionStatementNode, isExpressionStatementNode } from '../nodes/statementNodes';
-import { arrayPush } from '../utils/array';
-import { analysisPattern } from './utils';
+import { AnalysisResult } from './analysisResult';
+import { analysisPattern, uniqueIdGenerator } from './utils';
 
-export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdentifierNodeObj | AnalysisStatementNodeObj {
+export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdentifierNodeObj {
   const resultDeclarationObj: AnalysisIdentifierNodeObj = {};
-  const resultStatementObj: AnalysisStatementNodeObj = {
-    statements: []
-  };
 
   // declaration analysis
   if (isVariableDeclarationNode(node)) {
@@ -41,7 +37,7 @@ export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdenti
         resultDeclarationObj[local] = {
           code: '',
           dependencies,
-          id: '',
+          id: uniqueIdGenerator(),
           used: false
         };
       }
@@ -55,8 +51,6 @@ export function analysisNode(node: Node, result: AnalysisResult): AnalysisIdenti
   // statement analysis
   if (isExpressionStatementNode(node)) {
     result.addStatements(analysisExpressionStatementNode(node))
-  } else {
-    return {};
   }
 
   return resultDeclarationObj;
@@ -66,7 +60,7 @@ function analysisExpressionStatementNode(node: ExpressionStatementNode): Analysi
   const result: AnalysisNodeResult = Object.create(null);
   result.code = '';
   result.dependencies = analysisExpressionNode(node.expression);
-  result.id = '';
+  result.id = uniqueIdGenerator();
   result.used = false;
   return result;
 }

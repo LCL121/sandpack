@@ -28,4 +28,8 @@ export class AnalysisState {
   allScopes() {
     return this._scopeStack;
   }
+
+  findVar(key: string) {
+    return this._scopeStack.findVar(key);
+  }
 }

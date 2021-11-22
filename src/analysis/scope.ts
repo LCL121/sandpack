@@ -3,10 +3,10 @@ import { ImportResultObj } from './analysisImport';
 import { allKey, ScopedId } from './constant';
 
 export class Scope {
-  readonly id: ScopedId;
+  private readonly id: ScopedId;
   private _var: string[] = [];
   private _lexical: string[] = [];
-  private functions: string[] = [];
+  private _functions: string[] = [];
 
   constructor(id: ScopedId) {
     this.id = id;
@@ -36,6 +36,18 @@ export class Scope {
       this._push(key);
     }
   }
+
+  /**
+   * 1. 遍历_lexical
+   * 2. 遍历_var 和_functions
+   */
+  find(key: string): boolean {
+    return this._lexical.includes(key) || this._functions.includes(key) || this._var.includes(key);
+  }
+
+  isTopLevelScope(): boolean {
+    return this.id === ScopedId.topScopeId;
+  }
 }
 
 export class ScopeStack {
@@ -58,5 +70,13 @@ export class ScopeStack {
     return this._scopes[index];
   }
 
-  findVar() {}
+  /** null 表示没有对应scope */
+  findVar(key: string): Scope | null {
+    for (let i = this._scopes.length - 1; i >= 0; i--) {
+      if (this._scopes[i].find(key)) {
+        return this._scopes[i];
+      }
+    }
+    return null;
+  }
 }

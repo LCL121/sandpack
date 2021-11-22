@@ -6,7 +6,7 @@ import {
 } from '../nodes/exportNode';
 import { throwError } from '../utils/throw';
 import { isFunctionDeclarationNode } from '../nodes/declarationNode';
-import { analysisPattern } from './utils';
+import { analysisPattern } from './analysisPattern';
 import { allKey } from './constant';
 
 export interface ExportResultObj {

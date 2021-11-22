@@ -28,23 +28,25 @@ export class AnalysisResult {
     this._identifiers = merge<AnalysisIdentifierNodeObj>(isMergeObj, this._identifiers, ...exports);
   }
 
-  addStatements(...statements: AnalysisNodeResult[]) {
-    for (const statement of statements) {
-      if (isEmptyArray(statement.dependencies)) {
-        continue;
-      }
-      this._statements.statements.push(statement);
-      for (const dependency of statement.dependencies) {
-        if (isString(dependency)) {
-          this._statements[dependency] = arrayPush<number>(
-            this._statements.statements.length - 1,
-            this._statements[dependency] as number[]
-          );
-        } else {
-          this._statements[dependency.value] = arrayPush<number>(
-            this._statements.statements.length - 1,
-            this._statements[dependency.value] as number[]
-          );
+  addStatements(isTopLevelScope: boolean, ...statements: AnalysisNodeResult[]) {
+    if (isTopLevelScope) {
+      for (const statement of statements) {
+        if (isEmptyArray(statement.dependencies)) {
+          continue;
+        }
+        this._statements.statements.push(statement);
+        for (const dependency of statement.dependencies) {
+          if (isString(dependency)) {
+            this._statements[dependency] = arrayPush<number>(
+              this._statements.statements.length - 1,
+              this._statements[dependency] as number[]
+            );
+          } else {
+            this._statements[dependency.value] = arrayPush<number>(
+              this._statements.statements.length - 1,
+              this._statements[dependency.value] as number[]
+            );
+          }
         }
       }
     }

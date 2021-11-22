@@ -40,5 +40,6 @@ export function analysisPattern(node: PatternNode): AnalysisPatternResult[] {
   } else if (isRestElementNode(node)) {
     result.push(...analysisPattern(node.argument));
   }
+  console.log(result)
   return result;
 }

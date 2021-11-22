@@ -66,7 +66,7 @@ interface DirectiveNode extends Node {
 
 export interface BlockStatementNode extends Node {
   type: StatementTypes.BlockStatementType;
-  body: [StatementNode | DeclarationNode];
+  body: (StatementNode | DeclarationNode)[];
 }
 
 export function isBlockStatementNode(node: Node): node is BlockStatementNode {
@@ -79,7 +79,7 @@ interface StaticBlockNode extends Omit<BlockStatementNode, 'type'> {
 }
 
 export interface FunctionBodyNode extends BlockStatementNode {
-  body: [DirectiveNode | StatementNode];
+  body: (DirectiveNode | StatementNode)[];
 }
 
 interface EmptyStatementNode extends Node {
@@ -127,13 +127,13 @@ interface IfStatementNode extends Node {
 interface SwitchStatementNode extends Node {
   type: StatementTypes.SwitchStatementType;
   discriminant: ExpressionNode;
-  cases: [SwitchCaseNode];
+  cases: SwitchCaseNode[];
 }
 
 interface SwitchCaseNode extends Node {
   type: 'SwitchCase';
   test: ExpressionNode | null;
-  consequent: [StatementNode];
+  consequent: StatementNode[];
 }
 
 interface ThrowStatementNode extends Node {

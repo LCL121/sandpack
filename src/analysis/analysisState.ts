@@ -1,12 +1,12 @@
-import { ScopedId } from "./constant";
-import { Scope, ScopeStack } from "./scope";
+import { ScopedId } from './constant';
+import { Scope, ScopeStack } from './scope';
 
 export class AnalysisState {
   private _idCount = 0;
   private _scopeStack = new ScopeStack();
 
   uniqueIdGenerator() {
-    return `sand$$${this._idCount++}`
+    return `sand$$${this._idCount++}`;
   }
 
   pushScope(scopeId: ScopedId) {

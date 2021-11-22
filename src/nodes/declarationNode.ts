@@ -46,7 +46,7 @@ interface ClassNode extends Node {
 }
 
 interface ClassBodyNode extends Node {
-  body: [MethodDefinitionNode | PropertyDefinitionNode | StaticBlockNode];
+  body: (MethodDefinitionNode | PropertyDefinitionNode | StaticBlockNode)[];
 }
 
 interface PropertyDefinitionNode extends Node {

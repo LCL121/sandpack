@@ -65,6 +65,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     // TODO
   }
 
+  // 只有top level 才压入结果
   if (!isEmptyObject(resultDeclarationObj) && state.topScope().isTopLevelScope()) {
     result.addIdentifiers(false, resultDeclarationObj);
   }

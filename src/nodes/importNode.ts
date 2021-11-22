@@ -29,7 +29,7 @@ export interface ImportNamespaceSpecifierNode extends Node {
 
 export interface ImportDeclarationNode extends Node {
   type: 'ImportDeclaration';
-  specifiers: [ImportDefaultSpecifierNode | ImportSpecifierNode | ImportNamespaceSpecifierNode];
+  specifiers: (ImportDefaultSpecifierNode | ImportSpecifierNode | ImportNamespaceSpecifierNode)[];
   source: SourceNode;
 }
 

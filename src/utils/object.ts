@@ -6,7 +6,7 @@ export function merge<T extends { [key: string]: any }>(isMergeObj: boolean, ...
         if (Array.isArray(result[key])) {
           const tmp1 = result[key] as any as any[];
           const tmp2 = obj[key] as any as any[];
-          result[key] = [...tmp1 , ...tmp2] as any;
+          result[key] = [...tmp1, ...tmp2] as any;
         } else {
           result[key] = merge(false, result[key], obj[key]);
         }
@@ -18,7 +18,7 @@ export function merge<T extends { [key: string]: any }>(isMergeObj: boolean, ...
   return result;
 }
 
-export function isEmptyObject(obj: Object): boolean {
+export function isEmptyObject(obj: {}): boolean {
   if (Object.keys(obj).length === 0) {
     return true;
   }

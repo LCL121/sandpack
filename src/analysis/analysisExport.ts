@@ -26,7 +26,7 @@ export function analysisExportAllDeclarationNode(node: ExportAllDeclarationNode)
   const keyName = node.exported?.name;
   if (keyName === allKey) {
     throwError(`ExportAllDeclaration can't use ${allKey} `);
-  } else if (keyName == undefined) {
+  } else if (keyName === undefined) {
     resultObj[allKey].push(createExportResult(node.type, null, node.source.value));
   } else {
     resultObj[keyName] = createExportResult(node.type, null, node.source.value);

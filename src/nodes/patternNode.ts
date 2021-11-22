@@ -24,7 +24,7 @@ interface AssignmentPropertyNode extends Omit<PropertyNode, 'value'> {
 
 export interface ObjectPatternNode extends Node {
   type: PatternTypes.ObjectPatternType;
-  properties: [AssignmentPropertyNode | RestElementNode];
+  properties: (AssignmentPropertyNode | RestElementNode)[];
 }
 
 export function isObjectPatternNode(node: Node): node is ObjectPatternNode {

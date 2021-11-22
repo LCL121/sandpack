@@ -27,7 +27,7 @@ export function analysisPattern(node: PatternNode): AnalysisPatternResult[] {
       }
     }
   } else if (isAssignmentPatternNode(node)) {
-
+    result.push(...analysisPattern(node.left));
   } else if (isObjectPatternNode(node)) {
     // { t1: { t2: t3 } } = {} => only need t3
     for (const property of node.properties) {
@@ -40,6 +40,6 @@ export function analysisPattern(node: PatternNode): AnalysisPatternResult[] {
   } else if (isRestElementNode(node)) {
     result.push(...analysisPattern(node.argument));
   }
-  console.log(result)
+
   return result;
 }

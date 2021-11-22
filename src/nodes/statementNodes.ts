@@ -70,7 +70,7 @@ export interface BlockStatementNode extends Node {
 }
 
 export function isBlockStatementNode(node: Node): node is BlockStatementNode {
-  return node.type == StatementTypes.BlockStatementType;
+  return node.type === StatementTypes.BlockStatementType;
 }
 
 /** static { } */

@@ -8,6 +8,7 @@ import { AnalysisState } from './analysisState';
 import { ScopedId } from './constant';
 import { analysisPattern } from './analysisPattern';
 import { analysisExpressionNode } from './analysisExpression';
+import { isAssignmentPatternNode } from '../nodes/patternNode';
 
 interface IAnalysisNodeResult {
   locals: string[];
@@ -18,13 +19,13 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
   const resultObj: IAnalysisNodeResult = {
     locals: [],
     dependencies: []
-  }
+  };
   const resultDeclarationObj: AnalysisIdentifierNodeObj = Object.create(null);
 
   // declaration analysis
   if (isVariableDeclarationNode(node)) {
     for (const declaration of node.declarations) {
-      const dependencies = analysisExpressionNode(declaration.init);
+      const dependencies = analysisExpressionNode(declaration.init, result, state);
       resultObj.dependencies.push(...dependencies);
       for (const { local } of analysisPattern(declaration.id)) {
         resultObj.locals.push(local);
@@ -38,17 +39,28 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
       }
     }
   } else if (isFunctionDeclarationNode(node)) {
-    const local = node.id.name;
+    // 此作用域用于压入params，按es 标准有个隐藏的作用域
+    state.pushScope(ScopedId.blockScoped);
+    const localName = node.id.name;
+    const needDependencies: string[] = [];
     // 解析params
     for (const param of node.params) {
-      for (const { exported, local } of analysisPattern(param)) {
-        console.log(exported, local)
+      for (const { exported } of analysisPattern(param)) {
+        state.topScope().push(exported);
+      }
+      if (isAssignmentPatternNode(param)) {
+        for (const dependency of analysisExpressionNode(param.right, result, state)) {
+          if (state.findVar(dependency) === null) {
+            needDependencies.push(dependency);
+          }
+        }
       }
     }
     // 解析body
     const { dependencies } = analysisNode(node.body, result, state);
-    resultDeclarationObj[local] = createAnalysisNodeResult('', state.uniqueIdGenerator(), dependencies);
-    resultObj.dependencies.push(...dependencies);
+    resultDeclarationObj[localName] = createAnalysisNodeResult('', state.uniqueIdGenerator(), dependencies);
+    resultObj.dependencies.push(...dependencies, ...needDependencies);
+    state.popScope();
   } else if (isClassDeclarationNode(node)) {
     // TODO
   }
@@ -59,7 +71,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
 
   // statement analysis
   if (isExpressionStatementNode(node)) {
-    const statementResult = analysisExpressionStatementNode('', state.uniqueIdGenerator(), node);
+    const statementResult = analysisExpressionStatementNode('', state.uniqueIdGenerator(), node, result, state);
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     for (const dependency of statementResult.dependencies) {
       if (isString(dependency)) {
@@ -79,13 +91,14 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
         }
       }
     }
+    // 因为需要判断是否为top level scope，因此需要提前出栈
     state.popScope();
     const statementResult: AnalysisNodeResult = {
       code: '',
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
-    }
+    };
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     resultObj.dependencies.push(...needDependencies);
   }
@@ -93,8 +106,14 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
   return resultObj;
 }
 
-function analysisExpressionStatementNode(code: string, id: string, node: ExpressionStatementNode): AnalysisNodeResult {
-  return createAnalysisNodeResult(code, id, analysisExpressionNode(node.expression));
+function analysisExpressionStatementNode(
+  code: string,
+  id: string,
+  node: ExpressionStatementNode,
+  result: AnalysisResult,
+  state: AnalysisState
+): AnalysisNodeResult {
+  return createAnalysisNodeResult(code, id, analysisExpressionNode(node.expression, result, state));
 }
 
 /** 以name 为key */

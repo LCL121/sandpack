@@ -31,7 +31,7 @@ export function isVariableDeclarationNode(node: Node): node is VariableDeclarati
 export interface FunctionDeclarationNode extends Node {
   type: DeclarationTypes.FunctionDeclarationType;
   id: IdentifierNode;
-  params: IdentifierNode[];
+  params: PatternNode[];
   body: FunctionBodyNode;
 }
 

@@ -73,7 +73,7 @@ export function isObjectExpressionNode(node: Node): node is ObjectExpressionNode
   return node.type === ExpressionTypes.ObjectExpressionType;
 }
 
-interface FunctionExpressionNode extends FunctionNode {
+export interface FunctionExpressionNode extends FunctionNode {
   type: ExpressionTypes.FunctionExpressionType;
 }
 

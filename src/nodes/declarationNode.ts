@@ -1,5 +1,5 @@
 import { Node } from 'acorn';
-import { ExpressionNode } from './expressionNodes';
+import { ExpressionNode, FunctionExpressionNode } from './expressionNodes';
 import { PatternNode } from './patternNode';
 import { IdentifierNode, PrivateIdentifierNode } from './sharedNodes';
 import { BlockStatementNode, FunctionBodyNode } from './statementNodes';
@@ -39,6 +39,11 @@ export function isFunctionDeclarationNode(node: Node): node is FunctionDeclarati
   return node.type === DeclarationTypes.FunctionDeclarationType;
 }
 
+enum ClassPropertyDefinitionNode {
+  PropertyDefinitionType = 'PropertyDefinition',
+  MethodDefinitionType = 'MethodDefinition'
+}
+
 interface ClassNode extends Node {
   id: IdentifierNode | null;
   superClass: ExpressionNode | null;
@@ -50,15 +55,28 @@ interface ClassBodyNode extends Node {
 }
 
 interface PropertyDefinitionNode extends Node {
-  type: 'PropertyDefinition';
+  type: ClassPropertyDefinitionNode.PropertyDefinitionType;
   key: ExpressionNode | PrivateIdentifierNode;
   value: ExpressionNode | null;
   computed: boolean;
   static: boolean;
 }
 
+export function isPropertyDefinitionNode(node: Node): node is PropertyDefinitionNode {
+  return node.type === ClassPropertyDefinitionNode.PropertyDefinitionType;
+}
+
 interface MethodDefinitionNode extends Node {
+  type: ClassPropertyDefinitionNode.MethodDefinitionType;
   key: ExpressionNode | PrivateIdentifierNode;
+  value: FunctionExpressionNode;
+  kind: 'constructor' | 'method' | 'get' | 'set';
+  computed: boolean;
+  static: boolean;
+}
+
+export function isMethodDefinitionNode(node: Node): node is MethodDefinitionNode {
+  return node.type === ClassPropertyDefinitionNode.MethodDefinitionType;
 }
 
 interface StaticBlockNode extends Omit<BlockStatementNode, 'type'> {

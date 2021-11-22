@@ -101,6 +101,10 @@ interface ReturnStatementNode extends Node {
   argument: ExpressionNode | null;
 }
 
+export function isReturnStatementNode(node: Node): node is ReturnStatementNode {
+  return node.type === StatementTypes.ReturnStatementType;
+}
+
 interface LabeledStatementNode extends Node {
   type: StatementTypes.LabeledStatementType;
   label: IdentifierNode;

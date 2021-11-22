@@ -1,6 +1,17 @@
 import { Node } from 'acorn';
-import { isClassDeclarationNode, isVariableDeclarationNode, isFunctionDeclarationNode } from '../nodes/declarationNode';
-import { ExpressionStatementNode, isBlockStatementNode, isExpressionStatementNode } from '../nodes/statementNodes';
+import {
+  isClassDeclarationNode,
+  isVariableDeclarationNode,
+  isFunctionDeclarationNode,
+  isPropertyDefinitionNode,
+  isMethodDefinitionNode
+} from '../nodes/declarationNode';
+import {
+  ExpressionStatementNode,
+  isBlockStatementNode,
+  isExpressionStatementNode,
+  isReturnStatementNode
+} from '../nodes/statementNodes';
 import { isEmptyObject } from '../utils/object';
 import { isString } from '../utils/type';
 import { AnalysisResult } from './analysisResult';
@@ -62,7 +73,22 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     resultObj.dependencies.push(...dependencies, ...needDependencies);
     state.popScope();
   } else if (isClassDeclarationNode(node)) {
-    // TODO
+    const keyName = node.id.name;
+    const dependencies: string[] = [];
+    if (node.superClass) {
+      dependencies.push(...analysisExpressionNode(node.superClass, result, state));
+    }
+    for (const property of node.body.body) {
+      if (isPropertyDefinitionNode(property)) {
+        if (property.value) {
+          dependencies.push(...analysisExpressionNode(property.value, result, state));
+        }
+      } else if (isMethodDefinitionNode(property)) {
+        dependencies.push(...analysisExpressionNode(property.value, result, state));
+      }
+    }
+    resultDeclarationObj[keyName] = createAnalysisNodeResult('', state.uniqueIdGenerator(), dependencies);
+    resultObj.dependencies.push(...dependencies);
   }
 
   // 只有top level 才压入结果
@@ -102,6 +128,10 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     };
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     resultObj.dependencies.push(...needDependencies);
+  } else if (isReturnStatementNode(node)) {
+    if (node.argument) {
+      resultObj.dependencies.push(...analysisExpressionNode(node.argument, result, state));
+    }
   }
 
   return resultObj;

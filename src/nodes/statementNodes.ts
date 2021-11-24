@@ -73,7 +73,7 @@ export function isBlockStatementNode(node: Node): node is BlockStatementNode {
   return node.type === StatementTypes.BlockStatementType;
 }
 
-/** static { } */
+/** static { } 目前acorn 不支持 */
 interface StaticBlockNode extends Omit<BlockStatementNode, 'type'> {
   type: StatementTypes.StaticBlockType;
 }
@@ -82,14 +82,17 @@ export interface FunctionBodyNode extends BlockStatementNode {
   body: (DirectiveNode | StatementNode)[];
 }
 
+/** 不需要管 */
 interface EmptyStatementNode extends Node {
   type: StatementTypes.EmptyStatementType;
 }
 
+/** debugger; 不需要管 */
 interface DebuggerStatementNode extends Node {
   type: StatementTypes.DebuggerStatementType;
 }
 
+/** 目前先不管 */
 interface WithStatementNode extends Node {
   type: StatementTypes.WithStatementType;
   object: ExpressionNode;
@@ -128,10 +131,18 @@ interface IfStatementNode extends Node {
   alternate: StatementNode | null;
 }
 
+export function isIfStatementNode(node: Node): node is IfStatementNode {
+  return node.type === StatementTypes.IfStatementType;
+}
+
 interface SwitchStatementNode extends Node {
   type: StatementTypes.SwitchStatementType;
   discriminant: ExpressionNode;
   cases: SwitchCaseNode[];
+}
+
+export function isSwitchStatementNode(node: Node): node is SwitchStatementNode {
+  return node.type === StatementTypes.SwitchStatementType;
 }
 
 interface SwitchCaseNode extends Node {
@@ -145,11 +156,19 @@ interface ThrowStatementNode extends Node {
   argument: ExpressionNode;
 }
 
+export function isThrowStatementNode(node: Node): node is ThrowStatementNode {
+  return node.type === StatementTypes.ThrowStatementType;
+}
+
 interface TryStatementNode extends Node {
   type: StatementTypes.TryStatementType;
   block: BlockStatementNode;
   handler: CatchClauseNode | null;
   finalizer: BlockStatementNode | null;
+}
+
+export function isTryStatementNode(node: Node): node is TryStatementNode {
+  return node.type === StatementTypes.TryStatementType;
 }
 
 interface CatchClauseNode extends Node {
@@ -164,10 +183,18 @@ interface WhileStatementNode extends Node {
   body: StatementNode;
 }
 
+export function isWhileStatementNode(node: Node): node is WhileStatementNode {
+  return node.type === StatementTypes.WhileStatementType;
+}
+
 interface DoWhileStatementNode extends Node {
   type: StatementTypes.DoWhileStatementType;
   body: StatementNode;
   test: ExpressionNode;
+}
+
+export function isDoWhileStatementNode(node: Node): node is DoWhileStatementNode {
+  return node.type === StatementTypes.DoWhileStatementType;
 }
 
 interface ForStatementNode extends Node {
@@ -176,6 +203,10 @@ interface ForStatementNode extends Node {
   test: ExpressionNode | null;
   update: ExpressionNode | null;
   body: StatementNode;
+}
+
+export function isForStatementNode(node: Node): node is ForStatementNode {
+  return node.type === StatementTypes.ForStatementType;
 }
 
 interface ForInStatementNode extends Node {

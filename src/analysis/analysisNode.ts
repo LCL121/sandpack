@@ -9,8 +9,15 @@ import {
 import {
   ExpressionStatementNode,
   isBlockStatementNode,
+  isDoWhileStatementNode,
   isExpressionStatementNode,
-  isReturnStatementNode
+  isForStatementNode,
+  isIfStatementNode,
+  isReturnStatementNode,
+  isSwitchStatementNode,
+  isThrowStatementNode,
+  isTryStatementNode,
+  isWhileStatementNode
 } from '../nodes/statementNodes';
 import { isEmptyObject } from '../utils/object';
 import { isString } from '../utils/type';
@@ -132,6 +139,100 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     if (node.argument) {
       resultObj.dependencies.push(...analysisExpressionNode(node.argument, result, state));
     }
+  } else if (isIfStatementNode(node)) {
+    const needDependencies: string[] = [];
+    // 可以加个scope 虽然语法上不对，但是可以解决if statement 每一个都压入result 的问题
+    state.pushScope(ScopedId.blockScoped);
+    needDependencies.push(...analysisExpressionNode(node.test, result, state));
+    needDependencies.push(...analysisNode(node.consequent, result, state).dependencies);
+    if (node.alternate) {
+      needDependencies.push(...analysisNode(node.alternate, result, state).dependencies);
+    }
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: needDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...needDependencies);
+  } else if (isSwitchStatementNode(node)) {
+    const needDependencies: string[] = [];
+    state.pushScope(ScopedId.blockScoped);
+    needDependencies.push(...analysisExpressionNode(node.discriminant, result, state));
+    for (const item of node.cases) {
+      if (item.test) {
+        needDependencies.push(...analysisExpressionNode(item.test, result, state));
+      }
+      for (const consequent of item.consequent) {
+        needDependencies.push(...analysisNode(consequent, result, state).dependencies);
+      }
+    }
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: needDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...needDependencies);
+  } else if (isThrowStatementNode(node)) {
+    const needDependencies: string[] = [];
+    state.pushScope(ScopedId.blockScoped);
+    needDependencies.push(...analysisExpressionNode(node.argument, result, state));
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: needDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...needDependencies);
+  } else if (isTryStatementNode(node)) {
+    const needDependencies: string[] = [];
+    state.pushScope(ScopedId.blockScoped);
+    needDependencies.push(...analysisNode(node.block, result, state).dependencies);
+    // catch param
+    state.pushScope(ScopedId.blockScoped);
+    if (node.handler) {
+      if (node.handler.param) {
+        for (const { exported } of analysisPattern(node.handler.param)) {
+          state.topScope().push(exported);
+        }
+      }
+      needDependencies.push(...analysisNode(node.handler.body, result, state).dependencies);
+    }
+    state.popScope();
+    if (node.finalizer) {
+      needDependencies.push(...analysisNode(node.finalizer, result, state).dependencies);
+    }
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: needDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...needDependencies);
+  } else if (isWhileStatementNode(node) || isDoWhileStatementNode(node)) {
+    const needDependencies: string[] = [];
+    state.pushScope(ScopedId.blockScoped);
+    needDependencies.push(...analysisExpressionNode(node.test, result, state));
+    needDependencies.push(...analysisNode(node.body, result, state).dependencies);
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: needDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...needDependencies);
+  } else if (isForStatementNode(node)) {
   }
 
   return resultObj;

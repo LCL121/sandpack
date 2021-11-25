@@ -11,6 +11,8 @@ import {
   isBlockStatementNode,
   isDoWhileStatementNode,
   isExpressionStatementNode,
+  isForInStatementNode,
+  isForOfStatementNode,
   isForStatementNode,
   isIfStatementNode,
   isReturnStatementNode,
@@ -43,14 +45,17 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
   // declaration analysis
   if (isVariableDeclarationNode(node)) {
     for (const declaration of node.declarations) {
-      const dependencies = analysisExpressionNode(declaration.init, result, state);
-      resultObj.dependencies.push(...dependencies);
+      const needDependencies: string[] = [];
+      if (declaration.init) {
+        needDependencies.push(...analysisExpressionNode(declaration.init, result, state));
+      }
+      resultObj.dependencies.push(...needDependencies);
       for (const { local } of analysisPattern(declaration.id)) {
         resultObj.locals.push(local);
         state.topScope().push(local);
         resultDeclarationObj[local] = {
           code: '',
-          dependencies,
+          dependencies: needDependencies,
           id: state.uniqueIdGenerator(),
           used: false
         };
@@ -233,6 +238,54 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     resultObj.dependencies.push(...needDependencies);
   } else if (isForStatementNode(node)) {
+    const needDependencies: string[] = [];
+    state.pushScope(ScopedId.blockScoped);
+    if (node.init) {
+      if (isVariableDeclarationNode(node.init)) {
+        needDependencies.push(...analysisNode(node.init, result, state).dependencies);
+      } else {
+        needDependencies.push(...analysisExpressionNode(node.init, result, state));
+      }
+    }
+    if (node.test) {
+      needDependencies.push(...analysisExpressionNode(node.test, result, state));
+    }
+    if (node.update) {
+      needDependencies.push(...analysisExpressionNode(node.update, result, state));
+    }
+    needDependencies.push(...analysisNode(node.body, result, state).dependencies);
+    // 处理多余dependencies
+    const finallyDependencies = needDependencies.filter((dependency) => !state.findVar(dependency));
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: finallyDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...finallyDependencies);
+  } else if (isForInStatementNode(node) || isForOfStatementNode(node)) {
+    const needDependencies: string[] = [];
+    state.pushScope(ScopedId.blockScoped);
+    if (isVariableDeclarationNode(node.left)) {
+      needDependencies.push(...analysisNode(node.left, result, state).dependencies);
+    } else {
+      for (const { exported } of analysisPattern(node.left)) {
+        state.topScope().push(exported);
+      }
+    }
+    needDependencies.push(...analysisExpressionNode(node.right, result, state));
+    needDependencies.push(...analysisNode(node.body, result, state).dependencies);
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies: needDependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...needDependencies);
   }
 
   return resultObj;

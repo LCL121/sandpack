@@ -15,7 +15,7 @@ export type DeclarationNode = VariableDeclarationNode | FunctionDeclarationNode 
 export interface VariableDeclaratorNode extends Node {
   type: 'VariableDeclarator';
   id: PatternNode;
-  init: ExpressionNode;
+  init: ExpressionNode | null;
 }
 
 export interface VariableDeclarationNode extends Node {

@@ -114,14 +114,26 @@ interface LabeledStatementNode extends Node {
   body: StatementNode;
 }
 
+export function isLabeledStatementNode(node: Node): node is LabeledStatementNode {
+  return node.type === StatementTypes.LabeledStatementType;
+}
+
 interface BreakStatementNode extends Node {
   type: StatementTypes.BreakStatementType;
   label: IdentifierNode | null;
 }
 
+export function isBreakStatementNode(node: Node): node is BreakStatementNode {
+  return node.type === StatementTypes.BreakStatementType;
+}
+
 interface ContinueStatementNode extends Node {
   type: StatementTypes.ContinueStatementType;
   label: IdentifierNode | null;
+}
+
+export function isContinueStatementNode(node: Node): node is ContinueStatementNode {
+  return node.type === StatementTypes.ContinueStatementType;
 }
 
 interface IfStatementNode extends Node {
@@ -216,8 +228,16 @@ interface ForInStatementNode extends Node {
   body: StatementNode;
 }
 
+export function isForInStatementNode(node: Node): node is ForInStatementNode {
+  return node.type === StatementTypes.ForInStatementType;
+}
+
 /** for await (const x of xs) { */
 interface ForOfStatementNode extends Omit<ForInStatementNode, 'type'> {
   type: StatementTypes.ForOfStatementType;
   await: boolean;
+}
+
+export function isForOfStatementNode(node: Node): node is ForOfStatementNode {
+  return node.type === StatementTypes.ForOfStatementType;
 }

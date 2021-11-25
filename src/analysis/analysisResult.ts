@@ -34,6 +34,8 @@ export class AnalysisResult {
         if (isEmptyArray(statement.dependencies)) {
           continue;
         }
+        // 消除statement 中重复依赖
+        statement.dependencies = Array.from(new Set(statement.dependencies));
         this._statements.statements.push(statement);
         for (const dependency of statement.dependencies) {
           if (isString(dependency)) {

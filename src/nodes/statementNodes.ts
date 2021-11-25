@@ -118,6 +118,7 @@ export function isLabeledStatementNode(node: Node): node is LabeledStatementNode
   return node.type === StatementTypes.LabeledStatementType;
 }
 
+// 由于break label 属性 需要与label statement一块，因此通过推理可以不用理break
 interface BreakStatementNode extends Node {
   type: StatementTypes.BreakStatementType;
   label: IdentifierNode | null;

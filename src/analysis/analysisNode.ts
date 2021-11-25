@@ -15,6 +15,7 @@ import {
   isForOfStatementNode,
   isForStatementNode,
   isIfStatementNode,
+  isLabeledStatementNode,
   isReturnStatementNode,
   isSwitchStatementNode,
   isThrowStatementNode,
@@ -286,6 +287,18 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     };
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     resultObj.dependencies.push(...needDependencies);
+  } else if (isLabeledStatementNode(node)) {
+    state.pushScope(ScopedId.blockScoped);
+    const dependencies = analysisNode(node.body, result, state).dependencies;
+    state.popScope();
+    const statementResult: AnalysisNodeResult = {
+      code: '',
+      id: state.uniqueIdGenerator(),
+      dependencies,
+      used: false
+    };
+    result.addStatements(state.topScope().isTopLevelScope(), statementResult);
+    resultObj.dependencies.push(...dependencies);
   }
 
   return resultObj;

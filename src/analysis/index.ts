@@ -1,4 +1,4 @@
-import { Node } from 'acorn';
+import { parse } from 'acorn';
 import { isProgramNode, ProgramNode } from '../nodes/programNode';
 import { isImportDeclarationNode } from '../nodes/importNode';
 import { throwError } from '../utils/throw';
@@ -51,7 +51,11 @@ function analysisTopLevel(ast: ProgramNode): AnalysisResult {
   return result;
 }
 
-export default function (ast: Node): AnalysisResult | null {
+export default function (source: string): AnalysisResult | null {
+  const ast = parse(source, {
+    sourceType: 'module',
+    ecmaVersion: 2020
+  });
   if (!isProgramNode(ast)) {
     throwError('AST without Program Node');
   } else {

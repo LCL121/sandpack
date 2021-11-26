@@ -1,7 +1,7 @@
 import analysis from '../src/analysis';
-import ast from './analysis.test.json';
 import fs from 'fs';
 import path from 'path';
 
-const result = analysis(ast);
+const source = fs.readFileSync(path.resolve(__dirname, './analysis.test.txt'), 'utf-8');
+const result = analysis(source);
 fs.writeFileSync(path.resolve(__dirname, './result.json'), JSON.stringify(result), 'utf-8');

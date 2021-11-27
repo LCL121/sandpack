@@ -1,18 +1,21 @@
-interface PathOption {
-  [key: string]: string;
-}
+import { StateAlias, CoreState } from './state';
+import { PathOption, Option } from './type';
 
-interface EntryOption {
-  code: string;
-  fileId: string;
-}
-
-interface Option {
-  path: PathOption;
-  entry: EntryOption;
-  loadFunction: (filename: string) => string;
+function initPath(path?: PathOption): StateAlias {
+  const result: StateAlias = {};
+  for (const key in path) {
+    result[key] = {
+      origin: path[key],
+      loaded: false
+    };
+  }
+  return result;
 }
 
 export default function (option: Option): string {
+  const { path, entry, loadFunction } = option;
+  const state = new CoreState(initPath(path), loadFunction);
+  state.loadFile(entry);
+
   return '';
 }

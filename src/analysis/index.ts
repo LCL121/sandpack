@@ -14,12 +14,12 @@ import {
   analysisExportNamedDeclarationNode
 } from './analysisExport';
 import { analysisNode } from './analysisNode';
-import { AnalysisResult } from './analysisResult';
+import { AnalysisResult, IAnalysisResult } from './analysisResult';
 import { ScopedId } from './constant';
 import { AnalysisState } from './analysisState';
 
-function analysisTopLevel(ast: ProgramNode, fileId: string): AnalysisResult {
-  const globalState = new AnalysisState(fileId);
+function analysisTopLevel(ast: ProgramNode, code: string, fileId: string): AnalysisResult {
+  const globalState = new AnalysisState(code, fileId);
   globalState.pushScope(ScopedId.topScopeId);
 
   const result = new AnalysisResult();
@@ -51,7 +51,7 @@ function analysisTopLevel(ast: ProgramNode, fileId: string): AnalysisResult {
   return result;
 }
 
-export default function (source: string, fileId: string): AnalysisResult | null {
+export default function (source: string, fileId: string): IAnalysisResult | null {
   const ast = parse(source, {
     sourceType: 'module',
     ecmaVersion: 2020
@@ -59,7 +59,7 @@ export default function (source: string, fileId: string): AnalysisResult | null 
   if (!isProgramNode(ast)) {
     throwError('AST without Program Node');
   } else {
-    return analysisTopLevel(ast, fileId);
+    return analysisTopLevel(ast, source, fileId).result;
   }
   return null;
 }

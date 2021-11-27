@@ -55,7 +55,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
         resultObj.locals.push(local);
         state.topScope().push(local);
         resultDeclarationObj[local] = {
-          code: '',
+          code: state.getCodeByNode(node),
           dependencies: needDependencies,
           id: state.uniqueIdGenerator(),
           used: false
@@ -82,7 +82,11 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     }
     // 解析body
     const { dependencies } = analysisNode(node.body, result, state);
-    resultDeclarationObj[localName] = createAnalysisNodeResult('', state.uniqueIdGenerator(), dependencies);
+    resultDeclarationObj[localName] = createAnalysisNodeResult(
+      state.getCodeByNode(node),
+      state.uniqueIdGenerator(),
+      dependencies
+    );
     resultObj.dependencies.push(...dependencies, ...needDependencies);
     state.popScope();
   } else if (isClassDeclarationNode(node)) {
@@ -100,7 +104,11 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
         dependencies.push(...analysisExpressionNode(property.value, result, state));
       }
     }
-    resultDeclarationObj[keyName] = createAnalysisNodeResult('', state.uniqueIdGenerator(), dependencies);
+    resultDeclarationObj[keyName] = createAnalysisNodeResult(
+      state.getCodeByNode(node),
+      state.uniqueIdGenerator(),
+      dependencies
+    );
     resultObj.dependencies.push(...dependencies);
   }
 
@@ -111,7 +119,13 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
 
   // statement analysis
   if (isExpressionStatementNode(node)) {
-    const statementResult = analysisExpressionStatementNode('', state.uniqueIdGenerator(), node, result, state);
+    const statementResult = analysisExpressionStatementNode(
+      state.getCodeByNode(node),
+      state.uniqueIdGenerator(),
+      node,
+      result,
+      state
+    );
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     for (const dependency of statementResult.dependencies) {
       if (isString(dependency)) {
@@ -134,7 +148,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     // 因为需要判断是否为top level scope，因此需要提前出栈
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -156,7 +170,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     }
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -177,7 +191,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     }
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -190,7 +204,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     needDependencies.push(...analysisExpressionNode(node.argument, result, state));
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -217,7 +231,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     }
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -231,7 +245,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     needDependencies.push(...analysisNode(node.body, result, state).dependencies);
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -259,7 +273,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     const finallyDependencies = needDependencies.filter((dependency) => !state.findVar(dependency));
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: finallyDependencies,
       used: false
@@ -280,7 +294,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     needDependencies.push(...analysisNode(node.body, result, state).dependencies);
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
@@ -292,7 +306,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     const dependencies = analysisNode(node.body, result, state).dependencies;
     state.popScope();
     const statementResult: AnalysisNodeResult = {
-      code: '',
+      code: state.getCodeByNode(node),
       id: state.uniqueIdGenerator(),
       dependencies,
       used: false

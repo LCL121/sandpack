@@ -27,7 +27,7 @@ import { AnalysisResult } from './analysisResult';
 import { AnalysisState } from './analysisState';
 import { ScopedId } from './constant';
 
-export function analysisExpressionNode(node: ExpressionNode, result: AnalysisResult, state: AnalysisState) {
+export function analysisExpressionNode(node: ExpressionNode, result: AnalysisResult, state: AnalysisState): string[] {
   const results: string[] = [];
   if (isLiteralNode(node)) {
     // 无依赖不需要保存

@@ -1,0 +1,9 @@
+import { add } from './utils';
+
+const e = 100;
+
+function add_add(a, b) {
+  return add(add(a, b), add(a, b));
+}
+
+add_add(1, 2) + e;

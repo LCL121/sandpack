@@ -6,6 +6,13 @@ import { ImportResultObj } from './analysisImport';
 import { AnalysisIdentifierNodeObj, AnalysisNodeResult, AnalysisStatementNodeObj } from './analysisNode';
 import { allKey } from './constant';
 
+export interface IAnalysisResult {
+  imports: ImportResultObj;
+  exports: ExportResultObj;
+  identifiers: AnalysisIdentifierNodeObj;
+  statements: AnalysisStatementNodeObj;
+}
+
 export class AnalysisResult {
   private _imports: ImportResultObj = {};
   private _exports: ExportResultObj = {
@@ -15,6 +22,15 @@ export class AnalysisResult {
   private _statements: AnalysisStatementNodeObj = {
     statements: []
   };
+
+  get result(): IAnalysisResult {
+    return {
+      imports: this._imports,
+      exports: this._exports,
+      identifiers: this._identifiers,
+      statements: this._statements
+    };
+  }
 
   addImports(isMergeObj: boolean, ...imports: ImportResultObj[]) {
     this._imports = merge<ImportResultObj>(isMergeObj, this._imports, ...imports);

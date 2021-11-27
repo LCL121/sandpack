@@ -1,3 +1,4 @@
+import { Node } from 'acorn';
 import { ScopedId } from './constant';
 import { Scope, ScopeStack } from './scope';
 
@@ -5,9 +6,11 @@ export class AnalysisState {
   private _idCount = 0;
   private _scopeStack = new ScopeStack();
   private readonly _fileId: string;
+  private readonly _code: string;
 
-  constructor(fileId: string) {
+  constructor(code: string, fileId: string) {
     this._fileId = fileId;
+    this._code = code;
   }
 
   uniqueIdGenerator() {
@@ -36,5 +39,13 @@ export class AnalysisState {
 
   findVar(key: string) {
     return this._scopeStack.findVar(key);
+  }
+
+  getCode(start: number, end: number) {
+    return this._code.slice(start, end);
+  }
+
+  getCodeByNode(node: Node) {
+    return this.getCode(node.start, node.end);
   }
 }

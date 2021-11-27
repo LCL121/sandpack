@@ -4,9 +4,14 @@ import { Scope, ScopeStack } from './scope';
 export class AnalysisState {
   private _idCount = 0;
   private _scopeStack = new ScopeStack();
+  private readonly _fileId: string;
+
+  constructor(fileId: string) {
+    this._fileId = fileId;
+  }
 
   uniqueIdGenerator() {
-    return `sand$$${this._idCount++}`;
+    return `sand$${this._fileId}$${this._idCount++}`;
   }
 
   pushScope(scopeId: ScopedId) {

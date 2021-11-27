@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:ana": "ts-node ./test/analysis.test.ts"
+    "test:ana": "ts-node ./test/analysis/analysis.test.ts"
   },
   "keywords": [],
   "author": "",

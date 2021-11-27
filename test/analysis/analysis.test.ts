@@ -1,4 +1,4 @@
-import analysis from '../src/analysis';
+import analysis from '../../src/analysis';
 import fs from 'fs';
 import path from 'path';
 

@@ -47,19 +47,34 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
   if (isVariableDeclarationNode(node)) {
     for (const declaration of node.declarations) {
       const needDependencies: string[] = [];
+      let firstLocal = '';
       if (declaration.init) {
         needDependencies.push(...analysisExpressionNode(declaration.init, result, state));
       }
       resultObj.dependencies.push(...needDependencies);
       for (const { local } of analysisPattern(declaration.id)) {
+        if (local === '') {
+          continue;
+        }
         resultObj.locals.push(local);
         state.topScope().push(local);
-        resultDeclarationObj[local] = {
-          code: state.getCodeByNode(node),
-          dependencies: needDependencies,
-          id: state.uniqueIdGenerator(),
-          used: false
-        };
+        if (firstLocal === '') {
+          resultDeclarationObj[local] = {
+            code: state.getCodeByNode(node),
+            dependencies: needDependencies,
+            id: state.uniqueIdGenerator(),
+            used: false
+          };
+          firstLocal = local;
+        } else {
+          resultDeclarationObj[local] = {
+            code: '',
+            dependencies: needDependencies,
+            id: state.uniqueIdGenerator(),
+            used: false,
+            ref: firstLocal
+          };
+        }
       }
     }
   } else if (isFunctionDeclarationNode(node)) {
@@ -361,6 +376,8 @@ export interface AnalysisNodeResult {
   dependencies: (string | Dependency)[];
   id: string;
   used: boolean;
+  // identifier 使用
+  ref?: string;
 }
 
 export interface Dependency {

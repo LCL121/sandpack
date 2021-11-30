@@ -1,4 +1,5 @@
 import { Node } from 'acorn';
+import { create62 } from '../utils/utils';
 import { ScopedId } from './constant';
 import { Scope, ScopeStack } from './scope';
 
@@ -14,7 +15,8 @@ export class AnalysisState {
   }
 
   uniqueIdGenerator() {
-    return `sand$${this._fileId}$${this._idCount++}`;
+    // TODO 优化不必要id 有些statements 不在top level 就不需要id
+    return `s$${this._fileId}$${create62(this._idCount++)}`;
   }
 
   pushScope(scopeId: ScopedId) {

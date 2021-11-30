@@ -74,7 +74,7 @@ function foo() {
 
 // const
 const [a1, b1, ...rest] = [1, 2, '', a, 1 + 1];
-const { a: aa } = b;
+const { a: aa, b: bb } = b;
 const { y: yy } = { y: yyy, a: aaa }
 
 // expression

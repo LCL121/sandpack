@@ -1,6 +1,9 @@
 import { IAnalysisResult } from '../analysis/analysisResult';
 import analysis from '../analysis';
 import { LoadFunctionOption } from './type';
+import { isNumber } from '../utils/type';
+import { AnalysisNodeResult } from '../analysis/analysisNode';
+import { isEmptyObject } from '../utils/object';
 
 export interface StatePath {
   origin: string;
@@ -27,16 +30,59 @@ class StateFile {
   }
 
   parse() {
-    this._data = analysis(this.code, this.id);
-    this._parsed = true;
+    if (this._parsed === false) {
+      this._data = analysis(this.code, this.id);
+      this._parsed = true;
+    }
+  }
+
+  isEmptyExports() {
+    this.parse();
+    if (
+      this._data &&
+      Object.keys(this._data.exports).length === 1 &&
+      this._data.exports.EXPORT_ALL_KEY_SANDPACK.length === 0
+    ) {
+      return true;
+    }
+    return false;
   }
 
   findImport(local: string) {
-    if (this._parsed === false) {
-      this.parse();
-    }
+    this.parse();
     if (this._data !== null) {
       return this._data.imports[local];
+    }
+  }
+
+  findExported(exported: string) {
+    this.parse();
+    if (this._data !== null) {
+      return this._data.exports[exported];
+    }
+  }
+
+  findIdentifier(identifier: string) {
+    this.parse();
+    if (this._data !== null) {
+      return this._data.identifiers[identifier];
+    }
+  }
+
+  get allStatements() {
+    return this._data && this._data.statements;
+  }
+
+  findStatement(dependency: string) {
+    this.parse();
+    if (this._data !== null) {
+      const result: AnalysisNodeResult[] = [];
+      for (const index of this._data.statements[dependency]) {
+        if (isNumber(index)) {
+          result.push(this._data.statements.statements[index]);
+        }
+      }
+      return result;
     }
   }
 }
@@ -74,5 +120,9 @@ export class CoreState {
 
   getFile(fileName: string) {
     return this._files[fileName];
+  }
+
+  isFileEmptyExports(fileName: string) {
+    return this.getFile(fileName).isEmptyExports();
   }
 }

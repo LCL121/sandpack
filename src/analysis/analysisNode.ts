@@ -374,7 +374,8 @@ export interface AnalysisStatementNodeObj {
 export interface AnalysisNodeResult {
   code: string;
   dependencies: (string | Dependency)[];
-  id: string;
+  // identifier 使用
+  id?: string;
   used: boolean;
   // identifier 使用
   ref?: string;

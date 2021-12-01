@@ -2,7 +2,9 @@ function add(a, b) {
   return a + b + e;
 }
 
-const e = 100;
+let e = 100;
+
+e += 100;
 
 function add_add(a, b) {
   return add(add(a, b), add(a, b));

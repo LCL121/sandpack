@@ -76,6 +76,9 @@ class StateFile {
     this.parse();
     if (this._data !== null) {
       const result: AnalysisStatementNodeResult[] = [];
+      if (!this._data.statements[dependency]) {
+        return;
+      }
       for (const index of this._data.statements[dependency]) {
         if (isNumber(index)) {
           result.push(this._data.statements.statements[index]);
@@ -90,8 +93,15 @@ export interface StateFiles {
   [key: string]: StateFile;
 }
 
+interface StateCode {
+  [key: string]: {
+    identifiers: string[];
+    statements: string[];
+  };
+}
+
 export class CoreState {
-  private _code: string = '';
+  private _code: StateCode = {};
   private readonly _alias: StateAlias;
   private readonly _load: LoadFunctionOption;
   private _files: StateFiles = {};
@@ -101,8 +111,17 @@ export class CoreState {
     this._load = load;
   }
 
+  /**
+   * 需要确保无循环引用，因此在后面需要靠前
+   */
   get code() {
-    return this._code;
+    let identifiers = '';
+    let statements = '';
+    for (const key in this._code) {
+      identifiers = this._code[key].identifiers.join('') + identifiers;
+      statements = this._code[key].statements.join('') + statements;
+    }
+    return identifiers + statements;
   }
 
   aliasState(key: string) {
@@ -130,7 +149,17 @@ export class CoreState {
     return this.getFile(fileName).isEmptyExports();
   }
 
-  addCode(code: string) {
-    this._code += code;
+  addCode(fileName: string, code: string, index?: number) {
+    if (this._code[fileName] === undefined) {
+      this._code[fileName] = {
+        identifiers: [],
+        statements: []
+      };
+    }
+    if (index === undefined) {
+      this._code[fileName].identifiers.push(code);
+    } else {
+      this._code[fileName].statements.splice(index, 0, code);
+    }
   }
 }

@@ -2,8 +2,7 @@ import { IAnalysisResult } from '../analysis/analysisResult';
 import analysis from '../analysis';
 import { LoadFunctionOption } from './type';
 import { isNumber } from '../utils/type';
-import { AnalysisNodeResult } from '../analysis/analysisNode';
-import { isEmptyObject } from '../utils/object';
+import { AnalysisStatementNodeResult } from '../analysis/analysisNode';
 
 export interface StatePath {
   origin: string;
@@ -76,7 +75,7 @@ class StateFile {
   findStatement(dependency: string) {
     this.parse();
     if (this._data !== null) {
-      const result: AnalysisNodeResult[] = [];
+      const result: AnalysisStatementNodeResult[] = [];
       for (const index of this._data.statements[dependency]) {
         if (isNumber(index)) {
           result.push(this._data.statements.statements[index]);
@@ -92,6 +91,7 @@ export interface StateFiles {
 }
 
 export class CoreState {
+  private _code: string = '';
   private readonly _alias: StateAlias;
   private readonly _load: LoadFunctionOption;
   private _files: StateFiles = {};
@@ -99,6 +99,10 @@ export class CoreState {
   constructor(alias: StateAlias, load: LoadFunctionOption) {
     this._alias = alias;
     this._load = load;
+  }
+
+  get code() {
+    return this._code;
   }
 
   aliasState(key: string) {
@@ -124,5 +128,9 @@ export class CoreState {
 
   isFileEmptyExports(fileName: string) {
     return this.getFile(fileName).isEmptyExports();
+  }
+
+  addCode(code: string) {
+    this._code += code;
   }
 }

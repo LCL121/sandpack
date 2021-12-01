@@ -1,3 +1,6 @@
+import { Dependency } from '../analysis/analysisNode';
+import { isString } from './type';
+
 export function create62(num: number) {
   // 0-9 a-z A-Z
   /**
@@ -24,4 +27,12 @@ export function create62(num: number) {
     }
   }
   return result;
+}
+
+export function getDependency(dependency: string | Dependency): string {
+  if (isString(dependency)) {
+    return dependency;
+  } else {
+    return dependency.value;
+  }
 }

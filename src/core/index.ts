@@ -1,5 +1,6 @@
 import { StateAlias, CoreState } from './state';
 import { PathOption, Option } from './type';
+import { useStatement } from './utils';
 
 function initPath(path?: PathOption): StateAlias {
   const result: StateAlias = {};
@@ -16,9 +17,10 @@ function buildDefaultFile(entry: string, state: CoreState) {
   const statements = state.getFile(entry).allStatements;
   if (statements) {
     for (const statement of statements.statements) {
-      // TODO
+      useStatement(statement, state, entry);
     }
   }
+  console.log(state.code);
 }
 
 function buildModuleFile() {}

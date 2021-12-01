@@ -1,4 +1,6 @@
-import { add } from './utils';
+function add(a, b) {
+  return a + b + e;
+}
 
 const e = 100;
 

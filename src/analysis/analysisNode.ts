@@ -23,13 +23,13 @@ import {
   isWhileStatementNode
 } from '../nodes/statementNodes';
 import { isEmptyObject } from '../utils/object';
-import { isString } from '../utils/type';
 import { AnalysisResult } from './analysisResult';
 import { AnalysisState } from './analysisState';
 import { ScopedId } from './constant';
 import { analysisPattern } from './analysisPattern';
 import { analysisExpressionNode } from './analysisExpression';
 import { isAssignmentPatternNode } from '../nodes/patternNode';
+import { getDependency } from '../utils/utils';
 
 interface IAnalysisNodeResult {
   locals: string[];
@@ -97,7 +97,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     }
     // 解析body
     const { dependencies } = analysisNode(node.body, result, state);
-    resultDeclarationObj[localName] = createAnalysisNodeResult(
+    resultDeclarationObj[localName] = createAnalysisIdentifierNodeResult(
       state.getCodeByNode(node),
       state.uniqueIdGenerator(),
       dependencies
@@ -119,7 +119,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
         dependencies.push(...analysisExpressionNode(property.value, result, state));
       }
     }
-    resultDeclarationObj[keyName] = createAnalysisNodeResult(
+    resultDeclarationObj[keyName] = createAnalysisIdentifierNodeResult(
       state.getCodeByNode(node),
       state.uniqueIdGenerator(),
       dependencies
@@ -134,20 +134,11 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
 
   // statement analysis
   if (isExpressionStatementNode(node)) {
-    const statementResult = analysisExpressionStatementNode(
-      state.getCodeByNode(node),
-      state.uniqueIdGenerator(),
-      node,
-      result,
-      state
-    );
+    const statementResult = analysisExpressionStatementNode(state.getCodeByNode(node), node, result, state);
     result.addStatements(state.topScope().isTopLevelScope(), statementResult);
     for (const dependency of statementResult.dependencies) {
-      if (isString(dependency)) {
-        resultObj.dependencies.push(dependency);
-      } else {
-        resultObj.dependencies.push(dependency.value);
-      }
+      const key = getDependency(dependency);
+      resultObj.dependencies.push(key);
     }
   } else if (isBlockStatementNode(node)) {
     const needDependencies: string[] = [];
@@ -162,9 +153,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     }
     // 因为需要判断是否为top level scope，因此需要提前出栈
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -184,9 +174,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
       needDependencies.push(...analysisNode(node.alternate, result, state).dependencies);
     }
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -205,9 +194,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
       }
     }
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -218,9 +206,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     state.pushScope(ScopedId.blockScoped);
     needDependencies.push(...analysisExpressionNode(node.argument, result, state));
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -245,9 +232,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
       needDependencies.push(...analysisNode(node.finalizer, result, state).dependencies);
     }
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -259,9 +245,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     needDependencies.push(...analysisExpressionNode(node.test, result, state));
     needDependencies.push(...analysisNode(node.body, result, state).dependencies);
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -287,9 +272,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     // 处理多余dependencies
     const finallyDependencies = needDependencies.filter((dependency) => !state.findVar(dependency));
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: finallyDependencies,
       used: false
     };
@@ -308,9 +292,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     needDependencies.push(...analysisExpressionNode(node.right, result, state));
     needDependencies.push(...analysisNode(node.body, result, state).dependencies);
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies: needDependencies,
       used: false
     };
@@ -320,9 +303,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     state.pushScope(ScopedId.blockScoped);
     const dependencies = analysisNode(node.body, result, state).dependencies;
     state.popScope();
-    const statementResult: AnalysisNodeResult = {
+    const statementResult: AnalysisStatementNodeResult = {
       code: state.getCodeByNode(node),
-      id: state.uniqueIdGenerator(),
       dependencies,
       used: false
     };
@@ -335,21 +317,24 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
 
 function analysisExpressionStatementNode(
   code: string,
-  id: string,
   node: ExpressionStatementNode,
   result: AnalysisResult,
   state: AnalysisState
-): AnalysisNodeResult {
-  return createAnalysisNodeResult(code, id, analysisExpressionNode(node.expression, result, state));
+): AnalysisStatementNodeResult {
+  const tResult: AnalysisStatementNodeResult = Object.create(null);
+  tResult.code = code;
+  tResult.dependencies = analysisExpressionNode(node.expression, result, state);
+  tResult.used = false;
+  return tResult;
 }
 
 /** 以name 为key */
 export interface AnalysisIdentifierNodeObj {
-  [key: string]: AnalysisNodeResult;
+  [key: string]: AnalysisIdentifierNodeResult;
 }
 
-function createAnalysisNodeResult(code: string, id: string, dependencies: (string | Dependency)[]) {
-  const result: AnalysisNodeResult = Object.create(null);
+function createAnalysisIdentifierNodeResult(code: string, id: string, dependencies: (string | Dependency)[]) {
+  const result: AnalysisIdentifierNodeResult = Object.create(null);
   result.code = code;
   result.id = id;
   result.dependencies = dependencies;
@@ -367,17 +352,18 @@ function createAnalysisNodeResult(code: string, id: string, dependencies: (strin
  *        => 以Dependency.value 为key
  */
 export interface AnalysisStatementNodeObj {
-  statements: AnalysisNodeResult[];
-  [key: string]: number[] | AnalysisNodeResult[];
+  statements: AnalysisStatementNodeResult[];
+  [key: string]: number[] | AnalysisStatementNodeResult[];
 }
 
-export interface AnalysisNodeResult {
+export interface AnalysisStatementNodeResult {
   code: string;
   dependencies: (string | Dependency)[];
-  // identifier 使用
-  id?: string;
   used: boolean;
-  // identifier 使用
+}
+
+export interface AnalysisIdentifierNodeResult extends AnalysisStatementNodeResult {
+  id: string;
   ref?: string;
 }
 

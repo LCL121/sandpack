@@ -1,6 +1,6 @@
 import { StateAlias, CoreState } from './state';
 import { PathOption, Option } from './type';
-import { useAllStatements } from './utils';
+import { useAllStatements } from './useStatement';
 
 function initPath(path?: PathOption): StateAlias {
   const result: StateAlias = {};

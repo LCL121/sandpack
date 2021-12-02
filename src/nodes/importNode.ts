@@ -12,6 +12,10 @@ export interface ImportDefaultSpecifierNode extends Node {
   local: IdentifierNode;
 }
 
+export function isImportDefaultSpecifierNode(node: Node): node is ImportDefaultSpecifierNode {
+  return node.type === ImportTypes.ImportDefaultSpecifierType;
+}
+
 export interface ImportSpecifierNode extends Node {
   type: ImportTypes.ImportSpecifierType;
   local: IdentifierNode;
@@ -25,6 +29,10 @@ export function isImportSpecifierNode(node: Node): node is ImportSpecifierNode {
 export interface ImportNamespaceSpecifierNode extends Node {
   type: ImportTypes.ImportNamespaceSpecifierType;
   local: IdentifierNode;
+}
+
+export function isImportNamespaceSpecifierNode(node: Node): node is ImportNamespaceSpecifierNode {
+  return node.type === ImportTypes.ImportNamespaceSpecifierType;
 }
 
 export interface ImportDeclarationNode extends Node {

@@ -18,7 +18,7 @@ export function analysisImportDeclaration(node: ImportDeclarationNode): ImportRe
     if (isImportSpecifierNode(specifier)) {
       resultObj[localValue] = createImportResult(specifier.type, source, specifier.imported.name);
     } else {
-      resultObj[localValue] = createImportResult(specifier.type, source, localValue);
+      resultObj[localValue] = createImportResult(specifier.type, source, null);
     }
   }
   return resultObj;

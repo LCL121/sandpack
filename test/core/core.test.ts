@@ -2,8 +2,8 @@ import core from '../../src/core';
 import fs from 'fs';
 import path from 'path';
 
-const index = fs.readFileSync(path.resolve(__dirname, './index.txt'), 'utf-8');
-const utils = fs.readFileSync(path.resolve(__dirname, './utils.txt'), 'utf-8');
+const index = fs.readFileSync(path.resolve(__dirname, './index.js'), 'utf-8');
+const utils = fs.readFileSync(path.resolve(__dirname, './utils.js'), 'utf-8');
 
 const code = core({
   entry: './index',

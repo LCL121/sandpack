@@ -5,7 +5,7 @@ import path from 'path';
 const index = fs.readFileSync(path.resolve(__dirname, './index.txt'), 'utf-8');
 const utils = fs.readFileSync(path.resolve(__dirname, './utils.txt'), 'utf-8');
 
-core({
+const code = core({
   entry: './index',
   path: {
     vue: 'http:vue.js'
@@ -29,3 +29,5 @@ core({
     }
   }
 });
+
+fs.writeFileSync(path.resolve(__dirname, './result.js'), code);

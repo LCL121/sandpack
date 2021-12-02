@@ -14,7 +14,7 @@ export function useIdentifier(name: string, state: CoreState, fileName: string) 
       // 处理dependencies 确保code 正确性
       for (const dependency of identifier.dependencies) {
         const key = getDependency(dependency);
-        const result = useIdentifier(key, state, fileName);
+        const result = useDefinition(key, state, fileName);
         if (result) {
           code = replace(code, { [key]: result });
         }
@@ -26,6 +26,15 @@ export function useIdentifier(name: string, state: CoreState, fileName: string) 
     return identifier.id;
   }
   return null;
+}
+
+export function useImport(name: string, state: CoreState, fileName: string) {
+  const imports = state.getFile(fileName).findImport(name);
+  console.log(imports);
+}
+
+function useDefinition(name: string, state: CoreState, fileName: string) {
+  return useIdentifier(name, state, fileName) || useImport(name, state, fileName);
 }
 
 export function useStatementsByKey(key: string, state: CoreState, fileName: string) {
@@ -54,7 +63,7 @@ function useStatement(statement: AnalysisStatementNodeResult, index: number, sta
     let code = statement.code;
     for (const dependency of statement.dependencies) {
       const key = getDependency(dependency);
-      const result = useIdentifier(key, state, fileName);
+      const result = useDefinition(key, state, fileName);
       if (result) {
         code = replace(code, { [key]: result });
       }

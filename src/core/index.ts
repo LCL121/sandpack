@@ -15,7 +15,6 @@ function initPath(path?: PathOption): StateAlias {
 
 function buildDefaultFile(entry: string, state: CoreState) {
   useAllStatements(state, entry);
-  console.log(state.code);
 }
 
 function buildModuleFile() {}
@@ -30,5 +29,5 @@ export default function (option: Option): string {
     // TODO
   }
 
-  return '';
+  return state.code;
 }

@@ -57,7 +57,6 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
           continue;
         }
         resultObj.locals.push(local);
-        state.topScope().push(local);
         if (firstLocal === '') {
           resultDeclarationObj[local] = {
             code: state.getCodeByNode(node),

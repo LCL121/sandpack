@@ -28,19 +28,15 @@ function analysisTopLevel(ast: ProgramNode, code: string, fileId: string): Analy
     if (isImportDeclarationNode(node)) {
       const obj = analysisImportDeclaration(node);
       result.addImports(false, obj);
-      globalState.topScope().pushByImportResultObj(obj);
     } else if (isExportDefaultDeclarationNode(node)) {
       const obj = analysisExportDefaultDeclarationNode(node);
       result.addExports(false);
-      globalState.topScope().pushByExportResultObj(obj);
     } else if (isExportNamedDeclarationNode(node)) {
       const obj = analysisExportNamedDeclarationNode(node);
       result.addExports(false, obj);
-      globalState.topScope().pushByExportResultObj(obj);
     } else if (isExportAllDeclarationNode(node)) {
       const obj = analysisExportAllDeclarationNode(node);
       result.addExports(true, obj);
-      globalState.topScope().pushByExportResultObj(obj);
     } else {
       analysisNode(node, result, globalState);
     }

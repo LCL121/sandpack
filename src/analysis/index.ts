@@ -17,26 +17,26 @@ import { analysisNode } from './analysisNode';
 import { AnalysisResult, IAnalysisResult } from './analysisResult';
 import { ScopedId } from './constant';
 import { AnalysisState } from './analysisState';
+import windowVars from '../utils/window';
+import jsVars from '../utils/js';
 
 function analysisTopLevel(ast: ProgramNode, code: string, fileId: string): AnalysisResult {
   const globalState = new AnalysisState(code, fileId);
   globalState.pushScope(ScopedId.topScopeId);
+  globalState.topScope().push(...windowVars);
+  globalState.topScope().push(...jsVars);
 
   const result = new AnalysisResult();
 
   for (const node of ast.body) {
     if (isImportDeclarationNode(node)) {
-      const obj = analysisImportDeclaration(node);
-      result.addImports(false, obj);
+      result.addImports(false, analysisImportDeclaration(node));
     } else if (isExportDefaultDeclarationNode(node)) {
-      const obj = analysisExportDefaultDeclarationNode(node);
-      result.addExports(false);
+      result.addExports(false, analysisExportDefaultDeclarationNode(node));
     } else if (isExportNamedDeclarationNode(node)) {
-      const obj = analysisExportNamedDeclarationNode(node);
-      result.addExports(false, obj);
+      result.addExports(false, analysisExportNamedDeclarationNode(node));
     } else if (isExportAllDeclarationNode(node)) {
-      const obj = analysisExportAllDeclarationNode(node);
-      result.addExports(true, obj);
+      result.addExports(true, analysisExportAllDeclarationNode(node));
     } else {
       analysisNode(node, result, globalState);
     }

@@ -57,6 +57,9 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
           continue;
         }
         resultObj.locals.push(local);
+        if (!state.topScope().isTopLevelScope()) {
+          state.topScope().push(local);
+        }
         if (firstLocal === '') {
           resultDeclarationObj[local] = {
             code: state.getCodeByNode(node),
@@ -77,9 +80,12 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
       }
     }
   } else if (isFunctionDeclarationNode(node)) {
+    const localName = node.id.name;
+    if (!state.topScope().isTopLevelScope()) {
+      state.topScope().push(localName);
+    }
     // 此作用域用于压入params，按es 标准有个隐藏的作用域
     state.pushScope(ScopedId.blockScoped);
-    const localName = node.id.name;
     const needDependencies: string[] = [];
     // 解析params
     for (const param of node.params) {
@@ -105,6 +111,9 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     state.popScope();
   } else if (isClassDeclarationNode(node)) {
     const keyName = node.id.name;
+    if (!state.topScope().isTopLevelScope()) {
+      state.topScope().push(keyName);
+    }
     const dependencies: string[] = [];
     if (node.superClass) {
       dependencies.push(...analysisExpressionNode(node.superClass, result, state));

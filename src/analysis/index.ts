@@ -34,7 +34,7 @@ function analysisTopLevel(ast: ProgramNode, code: string, fileId: string): Analy
     } else if (isExportDefaultDeclarationNode(node)) {
       result.addExports(false, analysisExportDefaultDeclarationNode(node));
     } else if (isExportNamedDeclarationNode(node)) {
-      result.addExports(false, analysisExportNamedDeclarationNode(node));
+      result.addExports(false, analysisExportNamedDeclarationNode(node, result, globalState));
     } else if (isExportAllDeclarationNode(node)) {
       result.addExports(true, analysisExportAllDeclarationNode(node));
     } else {

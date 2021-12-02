@@ -7,7 +7,10 @@ import {
 import { throwError } from '../utils/throw';
 import { isFunctionDeclarationNode } from '../nodes/declarationNode';
 import { analysisPattern } from './analysisPattern';
-import { allKey } from './constant';
+import { allKey, defaultKey } from './constant';
+import { analysisNode } from './analysisNode';
+import { AnalysisResult } from './analysisResult';
+import { AnalysisState } from './analysisState';
 
 export interface ExportResultObj {
   [allKey]: ExportResult[];
@@ -36,12 +39,16 @@ export function analysisExportAllDeclarationNode(node: ExportAllDeclarationNode)
 
 export function analysisExportDefaultDeclarationNode(node: ExportDefaultDeclarationNode): ExportResultObj {
   const resultObj: ExportResultObj = Object.create(null);
-  const keyName = node.declaration.name;
-  resultObj[keyName] = createExportResult(node.type, keyName, null);
+  // TODO default 的变量对应
+  resultObj[defaultKey] = createExportResult(node.type, defaultKey, null);
   return resultObj;
 }
 
-export function analysisExportNamedDeclarationNode(node: ExportNamedDeclarationNode) {
+export function analysisExportNamedDeclarationNode(
+  node: ExportNamedDeclarationNode,
+  result: AnalysisResult,
+  state: AnalysisState
+) {
   const resultObj: ExportResultObj = Object.create(null);
   if (node.declaration === null) {
     for (const specifier of node.specifiers) {
@@ -53,8 +60,10 @@ export function analysisExportNamedDeclarationNode(node: ExportNamedDeclarationN
     }
   } else if (isFunctionDeclarationNode(node.declaration)) {
     const keyName = node.declaration.id.name;
+    analysisNode(node.declaration, result, state);
     resultObj[keyName] = createExportResult(node.type, keyName, null);
   } else {
+    analysisNode(node.declaration, result, state);
     for (const declaration of node.declaration.declarations) {
       for (const { local, exported } of analysisPattern(declaration.id)) {
         resultObj[exported] = createExportResult(node.type, local, null);

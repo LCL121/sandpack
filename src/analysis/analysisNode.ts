@@ -45,9 +45,9 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
 
   // declaration analysis
   if (isVariableDeclarationNode(node)) {
+    let firstLocal = '';
     for (const declaration of node.declarations) {
       const needDependencies: string[] = [];
-      let firstLocal = '';
       if (declaration.init) {
         needDependencies.push(...analysisExpressionNode(declaration.init, result, state));
       }

@@ -1,6 +1,7 @@
 import { ImportTypes } from '../nodes/importNode';
 import { getDependency } from '../utils/utils';
 import { CoreState } from './state';
+import { useExport } from './useExport';
 import { useStatementsByKey } from './useStatement';
 import { replace } from './utils';
 
@@ -39,8 +40,7 @@ export function useImport(name: string, state: CoreState, fileName: string) {
         throw Error('import imported is null');
       }
       state.loadFile(importObj.source);
-      state.getFile(importObj.source).findExported(importObj.imported);
-      console.log(state);
+      useExport(importObj.imported, state, importObj.source);
     } else if (importObj.type === ImportTypes.ImportDefaultSpecifierType) {
       // TODO import a from ''
     } else if (importObj.type === ImportTypes.ImportNamespaceSpecifierType) {

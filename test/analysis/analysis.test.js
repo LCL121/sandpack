@@ -257,7 +257,7 @@ for ([fi3] in fi1) {
 export * as aaa from 'd.js';
 export * from 'd.js';
 export * from 'e.js';
-export default foo;
+export default function fff() {}
 export const e = 1 * 2;
 export function ff() {}
 

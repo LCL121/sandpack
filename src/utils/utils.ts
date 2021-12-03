@@ -43,3 +43,26 @@ export function addSemicolon(code: string): string {
   }
   return `${code};`;
 }
+
+/**
+ * 拓扑排序
+ * @param base 所有基本点
+ * @param dependencies [被依赖, 受依赖]
+ * @returns string[]
+ */
+export function topologicalSort<T>(base: T[], dependencies: [T, T][]) {
+  const result: T[] = [];
+  const baseLength = base.length;
+
+  while (result.length < baseLength) {
+    base
+      .filter((value) => !dependencies.map(([a, b]) => b).includes(value))
+      .map((value) => {
+        result.push(value);
+        base = base.filter((a) => a !== value);
+        dependencies = dependencies.filter(([a, b]) => a !== value);
+      });
+  }
+
+  return result;
+}

@@ -18,8 +18,10 @@ export class Scope {
     }
   }
 
-  push(name: string) {
-    this._push(name);
+  push(...names: string[]) {
+    for (const name of names) {
+      this._push(name);
+    }
   }
 
   pushByImportResultObj(obj: ImportResultObj) {

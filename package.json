@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:ana": "ts-node ./test/analysis/analysis.test.ts"
+    "test:ana": "ts-node ./test/analysis/analysis.test.ts",
+    "test:core": "ts-node ./test/core/core.test.ts",
+    "gen:win": "ts-node ./scripts/window.ts",
+    "gen:js": "ts-node ./scripts/js.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +26,8 @@
     "@types/node": "^16.11.9",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "axios": "^0.24.0",
+    "cheerio": "^1.0.0-rc.10",
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

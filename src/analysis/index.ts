@@ -32,7 +32,7 @@ function analysisTopLevel(ast: ProgramNode, code: string, fileId: string): Analy
     if (isImportDeclarationNode(node)) {
       result.addImports(false, analysisImportDeclaration(node));
     } else if (isExportDefaultDeclarationNode(node)) {
-      result.addExports(false, analysisExportDefaultDeclarationNode(node));
+      result.addExports(false, analysisExportDefaultDeclarationNode(node, result, globalState));
     } else if (isExportNamedDeclarationNode(node)) {
       result.addExports(false, analysisExportNamedDeclarationNode(node, result, globalState));
     } else if (isExportAllDeclarationNode(node)) {

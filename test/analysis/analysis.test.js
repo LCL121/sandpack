@@ -9,64 +9,63 @@ const f1 = (a, cccc, b = a + cccc) => {
   ccc = cccc;
   const aaaa = '';
   aaaa = ccccc;
-  
+
   function ff6() {
     a;
     aa2;
   }
-  
+
   {
-  	aa1;
+    aa1;
   }
-}
-const f2 = async () => {}
+};
+const f2 = async () => {};
 const f3 = function (a, cccc, b = a + cccc) {
   ccc = cccc;
   const aaaa = '';
   aaaa = ccccc;
-  
+
   function ff6() {
     a;
     aa2;
   }
-  
+
   {
-  	aa1;
+    aa1;
   }
-}
-const f4 = function *() {
-	yield a;
-}
-const f5 = async function () {}
+};
+const f4 = function* () {
+  yield a;
+};
+const f5 = async function () {};
 function f6(a, cccc, b = a + cccc) {
   ccc = cccc;
   const aaaa = '';
   aaaa = ccccc;
-  
+
   function ff6() {
     a;
     aa2;
   }
-  
+
   {
-  	aa1;
+    aa1;
   }
 }
-function *f7() {}
+function* f7() {}
 async function f8() {}
 
 function foo() {
-  
   {
-   	const a = `call string${c}`; 
+    const a = `call string${c}`;
   }
-  
+
   for (let i = 0; i < a.length; i++) {
-	i;
+    i;
   }
-  
-  eval('console.log(a)')
-  
+
+  eval('console.log(a)');
+
   return {
     a
   };
@@ -75,7 +74,7 @@ function foo() {
 // const
 const [a1, b1, ...rest] = [1, 2, '', a, 1 + 1];
 const { a: aa, b: bb } = b;
-const { y: yy } = { y: yyy, a: aaa }
+const { y: yy } = { y: yyy, a: aaa };
 
 // expression
 b[a] = '';
@@ -110,21 +109,21 @@ A.a();
 
 A.b();
 
-rr5[rr6]
+rr5[rr6];
 
 rr7[1], rr8[1], rr9[1];
 
 rr7[1], rr8[1], rr9[1];
 
-a.a.a.a
+a.a.a.a;
 
-aa?.a.a?.a
+aa?.a.a?.a;
 
-import('acorn').then(() => {})
+import('acorn').then(() => {});
 
-import(rr10).then(() => {})
+import(rr10).then(() => {});
 
-import(rr11).then(rr12).then(rr13)
+import(rr11).then(rr12).then(rr13);
 
 // class
 class A extends AA {
@@ -132,35 +131,35 @@ class A extends AA {
   // #b = a;
   // static b = 1;
   // c = 2;
-  
-  constructor () {
+
+  constructor() {
     this.aa = 1;
   }
 
   [a + b]() {}
-  
+
   static getAA() {
-   	return this.aa; 
+    return this.aa;
   }
-  
+
   get a() {
-  	return {
-    	a: cla
+    return {
+      a: cla
     };
   }
-  
+
   set a(b) {
-   	this.aa = b;
-    clb
+    this.aa = b;
+    clb;
   }
-  
+
   async getA() {
-    clc
-   	return this.aa; 
+    clc;
+    return this.aa;
   }
-  
+
   *getAA() {
-  	yield a;
+    yield a;
   }
 }
 
@@ -172,18 +171,17 @@ class A extends AA {
 {
   const aaa = '';
   aaa = '';
-  aaa
-  c
+  aaa;
+  c;
 }
 
 debugger;
 
-loop1:
-for (let i = 0; i < 5; i++) {
+loop1: for (let i = 0; i < 5; i++) {
   if (i === 1) {
     continue loop1;
   } else {
-  	break loop1;
+    break loop1;
   }
   str = str + i;
 }
@@ -198,28 +196,30 @@ if (ia1) {
 
 throw Error();
 
-switch(sa1) {
+switch (sa1) {
   case sa2: {
     saa1;
     saa2;
   }
   case sa3: {
-   	saa3; 
+    saa3;
   }
-  case sa4: saa4; break;
+  case sa4:
+    saa4;
+    break;
 }
 
-while(wa1) {
+while (wa1) {
   wa2--;
 }
 
 try {
   ta1;
-} catch(ta2) {
+} catch (ta2) {
   ta2;
   ta3;
 } finally {
-  ta4; 
+  ta4;
 }
 
 do {
@@ -236,7 +236,7 @@ for (const fo1 of fo1) {
   fo2;
 }
 
-for ({fo2: fo3} of fo1) {
+for ({ fo2: fo3 } of fo1) {
   fo1;
   fo2;
   fo3;
@@ -257,17 +257,16 @@ for ([fi3] in fi1) {
 export * as aaa from 'd.js';
 export * from 'd.js';
 export * from 'e.js';
-export default function fff() {}
+export default [a, b];
 export const e = 1 * 2;
 export function ff() {}
 
 export const [t1, t2, ...tt3] = [1, 2];
 
-export const { tt: { ttt: tttt } } = {};
+export const {
+  tt: { ttt: tttt }
+} = {};
 
 export var t3, t4;
-export {
-	a,
-	a as aa,
-}
+export { a, a as aa };
 export { e as ee } from 'e.js';

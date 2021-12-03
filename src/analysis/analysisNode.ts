@@ -36,11 +36,17 @@ interface IAnalysisNodeResult {
   dependencies: string[];
 }
 
-export function analysisNode(node: Node, result: AnalysisResult, state: AnalysisState): IAnalysisNodeResult {
+export function analysisDeclarationNode(
+  node: Node,
+  result: AnalysisResult,
+  state: AnalysisState,
+  keyName: string | null = null
+) {
   const resultObj: IAnalysisNodeResult = {
     locals: [],
     dependencies: []
   };
+
   const resultDeclarationObj: AnalysisIdentifierNodeObj = Object.create(null);
 
   // declaration analysis
@@ -80,7 +86,7 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
       }
     }
   } else if (isFunctionDeclarationNode(node)) {
-    const localName = node.id.name;
+    const localName = keyName || node.id.name;
     if (!state.topScope().isTopLevelScope()) {
       state.topScope().push(localName);
     }
@@ -103,16 +109,16 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
     // 解析body
     const { dependencies } = analysisNode(node.body, result, state);
     resultDeclarationObj[localName] = createAnalysisIdentifierNodeResult(
-      state.getCodeByNode(node),
+      keyName ? `const ${keyName} = ${state.getCodeByNode(node)}` : state.getCodeByNode(node),
       state.uniqueIdGenerator(),
       dependencies
     );
     resultObj.dependencies.push(...dependencies, ...needDependencies);
     state.popScope();
   } else if (isClassDeclarationNode(node)) {
-    const keyName = node.id.name;
+    const localName = keyName || node.id.name;
     if (!state.topScope().isTopLevelScope()) {
-      state.topScope().push(keyName);
+      state.topScope().push(localName);
     }
     const dependencies: string[] = [];
     if (node.superClass) {
@@ -127,8 +133,8 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
         dependencies.push(...analysisExpressionNode(property.value, result, state));
       }
     }
-    resultDeclarationObj[keyName] = createAnalysisIdentifierNodeResult(
-      state.getCodeByNode(node),
+    resultDeclarationObj[localName] = createAnalysisIdentifierNodeResult(
+      keyName ? `const ${keyName} = ${state.getCodeByNode(node)}` : state.getCodeByNode(node),
       state.uniqueIdGenerator(),
       dependencies
     );
@@ -139,6 +145,20 @@ export function analysisNode(node: Node, result: AnalysisResult, state: Analysis
   if (!isEmptyObject(resultDeclarationObj) && state.topScope().isTopLevelScope()) {
     result.addIdentifiers(false, resultDeclarationObj);
   }
+
+  return resultObj;
+}
+
+export function analysisNode(node: Node, result: AnalysisResult, state: AnalysisState): IAnalysisNodeResult {
+  const resultObj: IAnalysisNodeResult = {
+    locals: [],
+    dependencies: []
+  };
+
+  const declarationResultObj = analysisDeclarationNode(node, result, state);
+
+  resultObj.locals.push(...declarationResultObj.locals);
+  resultObj.dependencies.push(...declarationResultObj.dependencies);
 
   // statement analysis
   if (isExpressionStatementNode(node)) {
@@ -341,7 +361,7 @@ export interface AnalysisIdentifierNodeObj {
   [key: string]: AnalysisIdentifierNodeResult;
 }
 
-function createAnalysisIdentifierNodeResult(code: string, id: string, dependencies: (string | Dependency)[]) {
+export function createAnalysisIdentifierNodeResult(code: string, id: string, dependencies: (string | Dependency)[]) {
   const result: AnalysisIdentifierNodeResult = Object.create(null);
   result.code = code;
   result.id = id;

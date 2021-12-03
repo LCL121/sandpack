@@ -1,4 +1,11 @@
-import { ImportDeclarationNode, ImportTypes, isImportSpecifierNode } from '../nodes/importNode';
+import {
+  ImportDeclarationNode,
+  ImportTypes,
+  isImportDefaultSpecifierNode,
+  isImportNamespaceSpecifierNode,
+  isImportSpecifierNode
+} from '../nodes/importNode';
+import { defaultKey } from './constant';
 
 export interface ImportResultObj {
   [key: string]: ImportResult;
@@ -17,7 +24,9 @@ export function analysisImportDeclaration(node: ImportDeclarationNode): ImportRe
     const localValue = specifier.local.name;
     if (isImportSpecifierNode(specifier)) {
       resultObj[localValue] = createImportResult(specifier.type, source, specifier.imported.name);
-    } else {
+    } else if (isImportDefaultSpecifierNode(specifier)) {
+      resultObj[localValue] = createImportResult(specifier.type, source, defaultKey);
+    } else if (isImportNamespaceSpecifierNode(specifier)) {
       resultObj[localValue] = createImportResult(specifier.type, source, null);
     }
   }

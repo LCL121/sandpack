@@ -1,5 +1,10 @@
 import { Node } from 'acorn';
-import { ClassDeclarationNode, FunctionDeclarationNode, VariableDeclarationNode } from './declarationNode';
+import {
+  ClassDeclarationNode,
+  DeclarationTypes,
+  FunctionDeclarationNode,
+  VariableDeclarationNode
+} from './declarationNode';
 import { ExpressionNode } from './expressionNodes';
 import { SourceNode, IdentifierNode } from './sharedNodes';
 
@@ -23,8 +28,20 @@ interface AnonymousDefaultExportedFunctionDeclaration extends Omit<FunctionDecla
   id: null;
 }
 
+export function isAnonymousDefaultExportedFunctionDeclaration(
+  node: Node
+): node is AnonymousDefaultExportedFunctionDeclaration {
+  return node.type === DeclarationTypes.FunctionDeclarationType;
+}
+
 interface AnonymousDefaultExportedClassDeclaration extends Omit<ClassDeclarationNode, 'id'> {
   id: null;
+}
+
+export function isAnonymousDefaultExportedClassDeclaration(
+  node: Node
+): node is AnonymousDefaultExportedClassDeclaration {
+  return node.type === DeclarationTypes.ClassDeclarationType;
 }
 
 export interface ExportDefaultDeclarationNode extends Node {

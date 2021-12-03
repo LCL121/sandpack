@@ -4,7 +4,7 @@ import { PatternNode } from './patternNode';
 import { IdentifierNode, PrivateIdentifierNode } from './sharedNodes';
 import { BlockStatementNode, FunctionBodyNode } from './statementNodes';
 
-enum DeclarationTypes {
+export enum DeclarationTypes {
   VariableDeclarationType = 'VariableDeclaration',
   FunctionDeclarationType = 'FunctionDeclaration',
   ClassDeclarationType = 'ClassDeclaration'

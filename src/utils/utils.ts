@@ -36,3 +36,10 @@ export function getDependency(dependency: string | Dependency): string {
     return dependency.value;
   }
 }
+
+export function addSemicolon(code: string): string {
+  if (code.endsWith(';')) {
+    return code;
+  }
+  return `${code};`;
+}

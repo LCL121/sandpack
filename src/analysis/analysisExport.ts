@@ -2,15 +2,20 @@ import {
   ExportTypes,
   ExportAllDeclarationNode,
   ExportDefaultDeclarationNode,
-  ExportNamedDeclarationNode
+  ExportNamedDeclarationNode,
+  isAnonymousDefaultExportedFunctionDeclaration,
+  isAnonymousDefaultExportedClassDeclaration
 } from '../nodes/exportNode';
 import { throwError } from '../utils/throw';
-import { isFunctionDeclarationNode } from '../nodes/declarationNode';
+import { isClassDeclarationNode, isFunctionDeclarationNode } from '../nodes/declarationNode';
 import { analysisPattern } from './analysisPattern';
 import { allKey, defaultKey } from './constant';
-import { analysisNode } from './analysisNode';
+import { analysisDeclarationNode, AnalysisIdentifierNodeObj, createAnalysisIdentifierNodeResult } from './analysisNode';
 import { AnalysisResult } from './analysisResult';
 import { AnalysisState } from './analysisState';
+import { analysisExpressionNode } from './analysisExpression';
+import { addSemicolon } from '../utils/utils';
+import { isEmptyObject } from '../utils/object';
 
 export interface ExportResultObj {
   [allKey]: ExportResult[];
@@ -37,9 +42,33 @@ export function analysisExportAllDeclarationNode(node: ExportAllDeclarationNode)
   return resultObj;
 }
 
-export function analysisExportDefaultDeclarationNode(node: ExportDefaultDeclarationNode): ExportResultObj {
+/* 由于export default 可以导出expression，因此将其当成一个identifier 进行处理  */
+export function analysisExportDefaultDeclarationNode(
+  node: ExportDefaultDeclarationNode,
+  result: AnalysisResult,
+  state: AnalysisState
+): ExportResultObj {
   const resultObj: ExportResultObj = Object.create(null);
-  // TODO default 的变量对应
+  if (
+    isFunctionDeclarationNode(node.declaration) ||
+    isAnonymousDefaultExportedFunctionDeclaration(node.declaration) ||
+    isClassDeclarationNode(node.declaration) ||
+    isAnonymousDefaultExportedClassDeclaration(node.declaration)
+  ) {
+    analysisDeclarationNode(node.declaration, result, state, defaultKey);
+  } else {
+    const resultDeclarationObj: AnalysisIdentifierNodeObj = Object.create(null);
+    const code = addSemicolon(`const ${defaultKey} = ${state.getCodeByNode(node.declaration)}`);
+    const dependencies = analysisExpressionNode(node.declaration, result, state);
+    resultDeclarationObj[defaultKey] = createAnalysisIdentifierNodeResult(
+      code,
+      state.uniqueIdGenerator(),
+      dependencies
+    );
+    if (!isEmptyObject(resultDeclarationObj) && state.topScope().isTopLevelScope()) {
+      result.addIdentifiers(false, resultDeclarationObj);
+    }
+  }
   resultObj[defaultKey] = createExportResult(node.type, defaultKey, null);
   return resultObj;
 }
@@ -60,10 +89,10 @@ export function analysisExportNamedDeclarationNode(
     }
   } else if (isFunctionDeclarationNode(node.declaration)) {
     const keyName = node.declaration.id.name;
-    analysisNode(node.declaration, result, state);
+    analysisDeclarationNode(node.declaration, result, state);
     resultObj[keyName] = createExportResult(node.type, keyName, null);
   } else {
-    analysisNode(node.declaration, result, state);
+    analysisDeclarationNode(node.declaration, result, state);
     for (const declaration of node.declaration.declarations) {
       for (const { local, exported } of analysisPattern(declaration.id)) {
         resultObj[exported] = createExportResult(node.type, local, null);

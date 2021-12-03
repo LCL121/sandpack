@@ -1,6 +1,7 @@
 import { add } from './utils';
+import { con } from './constant';
 
-let e = 100;
+let e = con;
 
 e += 100;
 

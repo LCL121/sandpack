@@ -33,6 +33,7 @@ export function useIdentifier(name: string, state: CoreState, fileName: string) 
 
 export function useImport(name: string, state: CoreState, fileName: string) {
   const importObj = state.getFile(fileName).findImport(name);
+  let result: string | null = null;
   if (importObj) {
     if (importObj.type === ImportTypes.ImportSpecifierType) {
       // import { a as aa } from ''
@@ -40,15 +41,16 @@ export function useImport(name: string, state: CoreState, fileName: string) {
         throw Error('import imported is null');
       }
       state.loadFile(importObj.source);
-      useExport(importObj.imported, state, importObj.source);
+      result = useExport(importObj.imported, state, importObj.source);
     } else if (importObj.type === ImportTypes.ImportDefaultSpecifierType) {
       // TODO import a from ''
     } else if (importObj.type === ImportTypes.ImportNamespaceSpecifierType) {
       // TODO import * as a from ''
     }
   }
+  return result;
 }
 
-export function useDefinition(name: string, state: CoreState, fileName: string) {
+export function useDefinition(name: string, state: CoreState, fileName: string): string | null {
   return useIdentifier(name, state, fileName) || useImport(name, state, fileName);
 }

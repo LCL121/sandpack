@@ -24,7 +24,9 @@ export interface ExportResultObj {
 
 export interface ExportResult {
   type: ExportTypes;
+  // 当export * from '' 时为null
   local: string | null;
+  // 当from 是有
   source: string | null;
 }
 

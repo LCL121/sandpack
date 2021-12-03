@@ -4,6 +4,7 @@ import path from 'path';
 
 const index = fs.readFileSync(path.resolve(__dirname, './index.js'), 'utf-8');
 const utils = fs.readFileSync(path.resolve(__dirname, './utils.js'), 'utf-8');
+const constant = fs.readFileSync(path.resolve(__dirname, './constant.js'), 'utf-8');
 
 const code = core({
   entry: './index',
@@ -21,6 +22,11 @@ const code = core({
         code: utils,
         id: 'b'
       };
+    } else if (filename === './constant') {
+      return {
+        code: constant,
+        id: 'c'
+      }
     } else {
       return {
         code: '',

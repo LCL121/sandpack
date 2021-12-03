@@ -3,6 +3,7 @@ import analysis from '../analysis';
 import { LoadFunctionOption } from './type';
 import { isNumber } from '../utils/type';
 import { AnalysisStatementNodeResult } from '../analysis/analysisNode';
+import { allKey } from '../analysis/constant';
 
 export interface StatePath {
   origin: string;
@@ -54,10 +55,19 @@ class StateFile {
     }
   }
 
+  /**
+   * 查找exported
+   * 1. 先找单个exported
+   * 2. 返回allKey 中exported
+   */
   findExported(exported: string) {
     this.parse();
     if (this._data !== null) {
-      return this._data.exports[exported];
+      if (exported !== allKey && this._data.exports[exported]) {
+        return this._data.exports[exported];
+      } else if (this._data.exports.EXPORT_ALL_KEY_SANDPACK.length > 0) {
+        return this._data.exports.EXPORT_ALL_KEY_SANDPACK;
+      }
     }
   }
 
@@ -112,7 +122,7 @@ export class CoreState {
   }
 
   /**
-   * 需要确保无循环引用，因此在后面需要靠前
+   * TODO 关系依赖算法/拓扑排序
    */
   get code() {
     let identifiers = '';

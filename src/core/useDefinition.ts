@@ -41,6 +41,7 @@ export function useImport(name: string, state: CoreState, fileName: string) {
         throw Error('import imported is null');
       }
       state.loadFile(importObj.source);
+      state.addFileDependencies(fileName, importObj.source);
       result = useExport(importObj.imported, state, importObj.source);
     } else if (importObj.type === ImportTypes.ImportDefaultSpecifierType) {
       // TODO import a from ''

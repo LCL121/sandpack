@@ -4,6 +4,7 @@ import { LoadFunctionOption } from './type';
 import { isNumber } from '../utils/type';
 import { AnalysisStatementNodeResult } from '../analysis/analysisNode';
 import { allKey } from '../analysis/constant';
+import { topologicalSort } from '../utils/utils';
 
 export interface StatePath {
   origin: string;
@@ -19,6 +20,7 @@ class StateFile {
   readonly id: string;
   private _parsed: boolean = false;
   private _data: IAnalysisResult | null = null;
+  private _dependencies = new Set<string>();
 
   constructor(code: string, id: string) {
     this.code = code;
@@ -27,6 +29,14 @@ class StateFile {
 
   get parsed() {
     return this._parsed;
+  }
+
+  get allStatements() {
+    return this._data && this._data.statements;
+  }
+
+  get dependencies() {
+    return Array.from(this._dependencies);
   }
 
   parse() {
@@ -78,10 +88,6 @@ class StateFile {
     }
   }
 
-  get allStatements() {
-    return this._data && this._data.statements;
-  }
-
   findStatement(dependency: string) {
     this.parse();
     if (this._data !== null) {
@@ -95,6 +101,12 @@ class StateFile {
         }
       }
       return result;
+    }
+  }
+
+  addDependencies(...dependencies: string[]) {
+    for (const dependency of dependencies) {
+      this._dependencies.add(dependency);
     }
   }
 }
@@ -121,15 +133,21 @@ export class CoreState {
     this._load = load;
   }
 
-  /**
-   * TODO 关系依赖算法/拓扑排序
-   */
   get code() {
+    const base: string[] = [];
+    const dependencies: [string, string][] = [];
+    for (const file in this._files) {
+      base.push(file);
+      for (const dependency of this._files[file].dependencies) {
+        dependencies.push([dependency, file]);
+      }
+    }
+    const sortResult = topologicalSort(base, dependencies);
     let identifiers = '';
     let statements = '';
-    for (const key in this._code) {
-      identifiers = this._code[key].identifiers.join('') + identifiers;
-      statements = this._code[key].statements.join('') + statements;
+    for (const key of sortResult) {
+      identifiers = identifiers + this._code[key].identifiers.join('');
+      statements = statements + this._code[key].statements.join('');
     }
     return identifiers + statements;
   }
@@ -143,12 +161,16 @@ export class CoreState {
   }
 
   loadFile(fileName: string) {
-    const { code, id } = this._load(fileName);
-    this.addFile(fileName, id, code);
+    if (this._files[fileName] === undefined) {
+      const { code, id } = this._load(fileName);
+      this.addFile(fileName, id, code);
+    }
   }
 
   addFile(fileName: string, id: string, code: string) {
-    this._files[fileName] = new StateFile(code, id);
+    if (this._files[fileName] === undefined) {
+      this._files[fileName] = new StateFile(code, id);
+    }
   }
 
   getFile(fileName: string) {
@@ -171,5 +193,12 @@ export class CoreState {
     } else {
       this._code[fileName].statements.splice(index, 0, code);
     }
+  }
+
+  /**
+   * 文件依赖的添加
+   */
+  addFileDependencies(fileName: string, ...dependencies: string[]) {
+    this._files[fileName].addDependencies(...dependencies);
   }
 }

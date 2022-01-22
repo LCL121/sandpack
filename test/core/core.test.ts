@@ -4,6 +4,7 @@ import path from 'path';
 
 const index = fs.readFileSync(path.resolve(__dirname, './index.js'), 'utf-8');
 const utils = fs.readFileSync(path.resolve(__dirname, './utils.js'), 'utf-8');
+const add = fs.readFileSync(path.resolve(__dirname, './add.js'), 'utf-8');
 let constant = fs.readFileSync(path.resolve(__dirname, './constant.js'), 'utf-8');
 
 const sandpack = core({
@@ -26,6 +27,11 @@ const sandpack = core({
       return {
         code: constant,
         id: 'c'
+      }
+    } else if (filename === './add') {
+      return {
+        code: add,
+        id: 'd'
       }
     } else {
       return {

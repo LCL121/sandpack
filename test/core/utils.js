@@ -1,9 +1,10 @@
 import { con } from './constant';
+import add from './add';
 
 let e1 = con;
 
 e1 += 100;
 
-export function add(a, b) {
-  return a + b + e1;
+export function add_e1(a, b) {
+  return add.add(a, b) + e1;
 }

@@ -29,7 +29,7 @@ import { ScopedId } from './constant';
 import { analysisPattern } from './analysisPattern';
 import { analysisExpressionNode } from './analysisExpression';
 import { isAssignmentPatternNode } from '../nodes/patternNode';
-import { getDependency } from '../utils/utils';
+import { addSemicolon, getDependency } from '../utils/utils';
 
 interface IAnalysisNodeResult {
   locals: string[];
@@ -109,7 +109,7 @@ export function analysisDeclarationNode(
     // 解析body
     const { dependencies } = analysisNode(node.body, result, state);
     resultDeclarationObj[localName] = createAnalysisIdentifierNodeResult(
-      keyName ? `const ${keyName} = ${state.getCodeByNode(node)}` : state.getCodeByNode(node),
+      keyName ? addSemicolon(`const ${keyName} = ${state.getCodeByNode(node)}`) : state.getCodeByNode(node),
       state.uniqueIdGenerator(),
       dependencies
     );
@@ -134,7 +134,7 @@ export function analysisDeclarationNode(
       }
     }
     resultDeclarationObj[localName] = createAnalysisIdentifierNodeResult(
-      keyName ? `const ${keyName} = ${state.getCodeByNode(node)}` : state.getCodeByNode(node),
+      keyName ? addSemicolon(`const ${keyName} = ${state.getCodeByNode(node)}`) : state.getCodeByNode(node),
       state.uniqueIdGenerator(),
       dependencies
     );

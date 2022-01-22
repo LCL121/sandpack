@@ -3,6 +3,8 @@
 
 /test/**/result.json
 /test/**/result.js
+/test/**/result1.js
+/test/**/result2.js
 
 yarn-error.log
 

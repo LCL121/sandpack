@@ -4,9 +4,10 @@ import path from 'path';
 
 const index = fs.readFileSync(path.resolve(__dirname, './index.js'), 'utf-8');
 const utils = fs.readFileSync(path.resolve(__dirname, './utils.js'), 'utf-8');
-const constant = fs.readFileSync(path.resolve(__dirname, './constant.js'), 'utf-8');
+const add = fs.readFileSync(path.resolve(__dirname, './add.js'), 'utf-8');
+let constant = fs.readFileSync(path.resolve(__dirname, './constant.js'), 'utf-8');
 
-const code = core({
+const sandpack = core({
   entry: './index',
   path: {
     vue: 'http:vue.js'
@@ -27,6 +28,11 @@ const code = core({
         code: constant,
         id: 'c'
       }
+    } else if (filename === './add') {
+      return {
+        code: add,
+        id: 'd'
+      }
     } else {
       return {
         code: '',
@@ -36,4 +42,10 @@ const code = core({
   }
 });
 
-fs.writeFileSync(path.resolve(__dirname, './result.js'), code);
+fs.writeFileSync(path.resolve(__dirname, './result1.js'), sandpack.code());
+
+constant = fs.readFileSync(path.resolve(__dirname, './constant2.js'), 'utf-8');
+
+sandpack.resetFile('./constant');
+
+fs.writeFileSync(path.resolve(__dirname, './result2.js'), sandpack.code());

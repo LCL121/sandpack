@@ -45,6 +45,9 @@ export function useImport(name: string, state: CoreState, fileName: string) {
       result = useExport(importObj.imported, state, importObj.source);
     } else if (importObj.type === ImportTypes.ImportDefaultSpecifierType) {
       // TODO import a from ''
+      state.loadFile(importObj.source);
+      state.addFileDependencies(fileName, importObj.source);
+      result = useExport(importObj.imported!, state, importObj.source);
     } else if (importObj.type === ImportTypes.ImportNamespaceSpecifierType) {
       // TODO import * as a from ''
     }

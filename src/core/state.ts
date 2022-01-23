@@ -72,8 +72,12 @@ export class CoreState {
 
   loadFile(filePath: string) {
     if (this._files[filePath] === undefined) {
-      const { code, id } = this._load(filePath);
-      this.addFile(filePath, id, code);
+      const loadFileInfo = this._load(filePath);
+      if (loadFileInfo) {
+        this.addFile(filePath, loadFileInfo.id, loadFileInfo.code);
+      } else {
+        throw Error(`${filePath} is not exist`);
+      }
     }
   }
 

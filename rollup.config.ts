@@ -14,6 +14,7 @@ const umdConfig = {
     file: './dist/sandpack.esm.min.js',
     format: 'es'
   },
+  external: ['acorn'],
   plugins: [
     json(),
     resolve(),

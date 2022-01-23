@@ -1,16 +1,25 @@
 {
-  "name": "sandpack",
+  "name": "@leditor/sandpack",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/sandpack.esm.min.js",
+  "typings": "./dist/sandpack.d.ts",
   "scripts": {
     "test:ana": "ts-node ./test/analysis/analysis.test.ts",
     "test:core": "ts-node ./test/core/core.test.ts",
     "gen:win": "ts-node ./scripts/window.ts",
-    "gen:js": "ts-node ./scripts/js.ts"
+    "gen:js": "ts-node ./scripts/js.ts",
+    "build": "node ./scripts/build.js"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Lei Chenlong",
+    "github": "https://github.com/LCL121"
+  },
   "license": "ISC",
   "dependencies": {
     "acorn": "^8.5.0",
@@ -22,8 +31,10 @@
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
-    "@rollup/plugin-typescript": "^8.3.0",
+    "@types/gulp": "^4.0.9",
+    "@types/gulp-header": "^2.0.1",
     "@types/node": "^16.11.9",
+    "@types/rimraf": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "axios": "^0.24.0",
@@ -31,8 +42,15 @@
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "execa": "^5.1.1",
+    "gulp": "^4.0.2",
+    "gulp-header": "^2.0.9",
     "prettier": "^2.4.1",
+    "rimraf": "^3.0.2",
     "rollup": "^2.60.1",
+    "rollup-plugin-dts": "^4.1.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.31.1",
     "typescript": "^4.5.2"
   }
 }

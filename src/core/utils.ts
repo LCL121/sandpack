@@ -29,3 +29,21 @@ export function replace(target: string, map: { [key: string]: string }): string 
   }
   return result;
 }
+
+export function relativeToAbsolute(currentPath: string, relativePath: string) {
+  const currents = currentPath.split('/');
+  // 去掉文件名
+  currents.pop();
+  const relatives = relativePath.split('/');
+  for (const relative of relatives) {
+    if (relative === '..') {
+      currents.pop();
+      if (currents.length === 0) {
+        throw Error(`${currentPath} 文件中${relativePath} 路径文件不存在`);
+      }
+    } else if (relative !== '' && relative !== '.') {
+      currents.push(relative);
+    }
+  }
+  return currents.join('/');
+}

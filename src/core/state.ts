@@ -2,6 +2,7 @@ import { LoadFunctionOption } from './type';
 import { topologicalSort } from '../utils/utils';
 import { useAllStatements } from './useStatement';
 import { StateFile } from './fileState';
+import { relativeToAbsolute } from './utils';
 
 export interface StatePath {
   origin: string;
@@ -32,7 +33,7 @@ export class CoreState {
   private _files: StateFiles = {};
 
   constructor(entry: string, alias: StateAlias, load: LoadFunctionOption) {
-    this._entry = entry;
+    this._entry = relativeToAbsolute('/', entry);
     this._alias = alias;
     this._load = load;
     this._builded = false;
@@ -69,28 +70,28 @@ export class CoreState {
     this._alias[key].loaded = true;
   }
 
-  loadFile(fileName: string) {
-    if (this._files[fileName] === undefined) {
-      const { code, id } = this._load(fileName);
-      this.addFile(fileName, id, code);
+  loadFile(filePath: string) {
+    if (this._files[filePath] === undefined) {
+      const { code, id } = this._load(filePath);
+      this.addFile(filePath, id, code);
     }
   }
 
   /**
    * 对应file/code set undefined
    */
-  resetFile(fileName: string, strict = false) {
-    this._files[fileName] = undefined;
-    this._code[fileName].identifiers = [];
-    this._code[fileName].statements = [];
+  resetFile(filePath: string, strict = false) {
+    this._files[filePath] = undefined;
+    this._code[filePath].identifiers = [];
+    this._code[filePath].statements = [];
     this._builded = false;
 
     if (strict) {
-      this.resetRelationFile(fileName);
+      this.resetRelationFile(filePath);
     } else {
       for (const file in this._files) {
         const dependencies = this._files[file]?.dependencies;
-        if (dependencies && dependencies.includes(fileName)) {
+        if (dependencies && dependencies.includes(filePath)) {
           this.resetFile(file);
         }
       }
@@ -105,18 +106,18 @@ export class CoreState {
    * 5. 找到受该变量依赖的其他文件中的identifiers/statements
    * TODO 有难度
    */
-  resetRelationFile(fileName: string) {
+  resetRelationFile(filePath: string) {
     const needResetFiles: string[] = [];
     for (const file in this._files) {
       const dependencies = this._files[file]?.dependencies;
-      if (dependencies && dependencies.includes(fileName)) {
+      if (dependencies && dependencies.includes(filePath)) {
         needResetFiles.push(file);
       }
     }
 
     for (const needResetFile of needResetFiles) {
       const fileState = this.getFile(needResetFile);
-      let tmpIdentifiers = fileState.findImportNamesBySource(fileName);
+      let tmpIdentifiers = fileState.findImportNamesBySource(filePath);
       const needIdentifiers: string[] = [];
       while (tmpIdentifiers.length > 0) {
         needIdentifiers.push(...tmpIdentifiers);
@@ -128,47 +129,47 @@ export class CoreState {
     }
   }
 
-  addFile(fileName: string, id: string, code: string) {
-    if (this._files[fileName] === undefined) {
-      this._files[fileName] = new StateFile(code, id);
+  addFile(filePath: string, id: string, code: string) {
+    if (this._files[filePath] === undefined) {
+      this._files[filePath] = new StateFile(code, id);
     }
   }
 
-  getFile(fileName: string) {
-    this.hasFile(fileName);
-    return this._files[fileName]!;
+  getFile(filePath: string) {
+    this.hasFile(filePath);
+    return this._files[filePath]!;
   }
 
-  hasFile(fileName: string) {
-    if (this._files[fileName] === undefined) {
-      throw Error(`${fileName} not loaded`);
+  hasFile(filePath: string) {
+    if (this._files[filePath] === undefined) {
+      throw Error(`${filePath} not loaded`);
     }
     return true;
   }
 
-  isFileEmptyExports(fileName: string) {
-    return this.getFile(fileName).isEmptyExports();
+  isFileEmptyExports(filePath: string) {
+    return this.getFile(filePath).isEmptyExports();
   }
 
-  addCode(fileName: string, code: string, index?: number) {
-    if (this._code[fileName] === undefined) {
-      this._code[fileName] = {
+  addCode(filePath: string, code: string, index?: number) {
+    if (this._code[filePath] === undefined) {
+      this._code[filePath] = {
         identifiers: [],
         statements: []
       };
     }
     if (index === undefined) {
-      this._code[fileName].identifiers.push(code);
+      this._code[filePath].identifiers.push(code);
     } else {
-      this._code[fileName].statements.splice(index, 0, code);
+      this._code[filePath].statements.splice(index, 0, code);
     }
   }
 
   /**
    * 文件依赖的添加
    */
-  addFileDependencies(fileName: string, ...dependencies: string[]) {
-    this.getFile(fileName).addDependencies(...dependencies);
+  addFileDependencies(filePath: string, ...dependencies: string[]) {
+    this.getFile(filePath).addDependencies(...dependencies);
   }
 
   run() {

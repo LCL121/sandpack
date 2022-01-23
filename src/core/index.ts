@@ -20,8 +20,8 @@ export default function (option: Option) {
     code() {
       return state.code;
     },
-    resetFile(fileName: string) {
-      state.resetFile(fileName);
+    resetFile(filePath: string) {
+      state.resetFile(filePath);
     }
   };
 }

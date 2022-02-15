@@ -46,18 +46,19 @@ export class CoreState {
     const base: string[] = [];
     const dependencies: [string, string][] = [];
     for (const file in this._files) {
-      this.hasFile(file);
-      base.push(file);
-      for (const dependency of this._files[file]!.dependencies) {
-        dependencies.push([dependency, file]);
+      if (this.hasFile(file)) {
+        base.push(file);
+        for (const dependency of this._files[file]!.dependencies) {
+          dependencies.push([dependency, file]);
+        }
       }
     }
     const sortResult = topologicalSort(base, dependencies);
     let identifiers = '';
     let statements = '';
     for (const key of sortResult) {
-      identifiers = identifiers + this._code[key].identifiers.join('');
-      statements = statements + this._code[key].statements.join('');
+      identifiers = identifiers + (this._code[key]?.identifiers.join('') || '');
+      statements = statements + (this._code[key]?.statements.join('') || '');
     }
     return identifiers + statements;
   }
@@ -85,10 +86,12 @@ export class CoreState {
    * 对应file/code set undefined
    */
   resetFile(filePath: string, strict = false) {
-    this._files[filePath] = undefined;
-    this._code[filePath].identifiers = [];
-    this._code[filePath].statements = [];
     this._builded = false;
+    this._files[filePath] = undefined;
+    if (this._code[filePath]) {
+      this._code[filePath].identifiers = [];
+      this._code[filePath].statements = [];
+    }
 
     if (strict) {
       this.resetRelationFile(filePath);
@@ -140,12 +143,19 @@ export class CoreState {
   }
 
   getFile(filePath: string) {
-    this.hasFile(filePath);
+    this.assertHasFile(filePath);
     return this._files[filePath]!;
   }
 
   hasFile(filePath: string) {
     if (this._files[filePath] === undefined) {
+      return false;
+    }
+    return true;
+  }
+
+  assertHasFile(filePath: string) {
+    if (!this.hasFile(filePath)) {
       throw Error(`${filePath} not loaded`);
     }
     return true;
